@@ -1,0 +1,7 @@
+TEAM_ID=
+
+PRODUCT_NAME=netinspektor_example
+PRODUCT_BUNDLE_IDENTIFIER=com.evertwoud.netinspektor.example.netinspektor.example$(TEAM_ID)
+
+CURRENT_PROJECT_VERSION=1
+MARKETING_VERSION=1.0

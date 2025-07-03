@@ -1,0 +1,69 @@
+package com.evertwoud.netinspektor.desktop.data.model
+
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import com.evertwoud.netinspektor.core.event.NetInspektorEvent
+
+class SessionData {
+    var archive by mutableStateOf(Archive())
+        private set
+
+    val requests = mutableStateListOf<NetInspektorEvent.Request>()
+    val responses = mutableStateListOf<NetInspektorEvent.Response>()
+
+    val events by derivedStateOf {
+        (requests + responses).sortedBy { it.timestamp }
+    }
+
+    fun restoreArchive() {
+        requests.addAll(archive.requests)
+        responses.addAll(archive.responses)
+        archive = Archive()
+    }
+
+    fun archive() {
+        // Write data to archive
+        archive.write(requests, responses)
+        // Clear current data
+        requests.clear()
+        responses.clear()
+    }
+
+    fun matchRequestFor(
+        response: NetInspektorEvent.Response
+    ): NetInspektorEvent.Request? = requests.firstOrNull { request ->
+        response.requestUuid == request.uuid
+    }
+
+    fun matchResponsesFor(
+        request: NetInspektorEvent.Request
+    ): List<NetInspektorEvent.Response> = responses.filter { response ->
+        response.requestUuid == request.uuid
+    }
+
+    fun matchLinkedEvents(selection: NetInspektorEvent?) = when (selection) {
+        is NetInspektorEvent.Request -> matchResponsesFor(selection)
+        is NetInspektorEvent.Response -> listOfNotNull(matchRequestFor(selection))
+        else -> emptyList()
+    }
+
+
+    class Archive() {
+        val requests = mutableStateListOf<NetInspektorEvent.Request>()
+        val responses = mutableStateListOf<NetInspektorEvent.Response>()
+
+        val isEmpty by derivedStateOf { requests.isEmpty() && responses.isEmpty() }
+
+        fun write(
+            requests: List<NetInspektorEvent.Request>,
+            responses: List<NetInspektorEvent.Response>
+        ) {
+            this.requests.addAll(requests)
+            this.responses.addAll(responses)
+        }
+    }
+}
