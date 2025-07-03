@@ -8,3 +8,6 @@ plugins {
     alias(libs.plugins.kotlinMultiplatformLibrary) apply false
     alias(libs.plugins.kotlinxSerialization) apply false
 }
+
+ext["library_group"] = "com.evertwoud.netinspektor"
+ext["library_version"] = "1.0.0"

@@ -8,8 +8,8 @@ plugins {
     alias(libs.plugins.kotlinxSerialization)
 }
 
-group = "com.evertwoud.netinspektor"
-version = "1.0.0"
+group = rootProject.extra.properties["library_group"] as String
+version = rootProject.extra.properties["library_version"] as String
 
 publishing {
     repositories {
