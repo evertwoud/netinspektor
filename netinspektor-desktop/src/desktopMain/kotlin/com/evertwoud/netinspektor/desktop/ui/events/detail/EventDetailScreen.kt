@@ -56,6 +56,17 @@ fun EventDetailScreen(
         Column(
             modifier = Modifier.fillMaxWidth().padding(16.dp)
         ) {
+            if (event is NetInspektorEvent.Response) {
+                event.getOrMatchRequest(viewModel.session)?.let { match ->
+                    Link(
+                        text ="Go to request",
+                        onClick = {
+                            viewModel.selection = match
+                        }
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically

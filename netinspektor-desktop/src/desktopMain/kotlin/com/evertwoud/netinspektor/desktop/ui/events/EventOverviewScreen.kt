@@ -169,6 +169,23 @@ fun EventOverviewScreen(
                             }
 
                             this@Column.AnimatedVisibility(
+                                modifier = Modifier.align(Alignment.BottomCenter),
+                                visible = scrollState.canScrollForward,
+                                enter = expandIn(expandFrom = Alignment.BottomCenter) + fadeIn(),
+                                exit = shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut()
+                            ) {
+                                Chip(
+                                    modifier = Modifier.padding(16.dp).align(Alignment.BottomCenter),
+                                    content = { Text("Scroll to bottom") },
+                                    onClick = {
+                                        scope.launch {
+                                            scrollState.animateScrollToItem(session.data.events.size)
+                                        }
+                                    }
+                                )
+                            }
+
+                            this@Column.AnimatedVisibility(
                                 modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter),
                                 visible = showScrollEffect,
                                 enter = expandIn(expandFrom = Alignment.BottomCenter) + fadeIn(),
@@ -199,18 +216,18 @@ fun EventOverviewScreen(
                         modifier = Modifier.fillMaxWidth().padding(8.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.weight(1F),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            SelectableIconActionButton(
-                                key = AllIconsKeys.RunConfigurations.Scroll_down,
-                                contentDescription = "Scroll to bottom",
-                                selected = autoScrollEnabled,
-                                onClick = { autoScrollEnabled = !autoScrollEnabled },
-                            )
-                        }
-
+                        SelectableIconActionButton(
+                            key = AllIconsKeys.RunConfigurations.Scroll_down,
+                            contentDescription = "Scroll to bottom",
+                            selected = autoScrollEnabled,
+                            onClick = {
+                                scope.launch {
+                                    autoScrollEnabled = !autoScrollEnabled
+                                    scrollState.animateScrollToItem(session.data.events.size)
+                                }
+                            },
+                        )
+                        Spacer(modifier = Modifier.weight(1F))
                         IconButton(
                             onClick = { session.data.archive() },
                             enabled = session.data.events.isNotEmpty()
