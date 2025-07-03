@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -15,6 +16,7 @@ import com.evertwoud.netinspektor.core.event.NetInspektorEvent
 import com.evertwoud.netinspektor.desktop.MainViewModel
 import com.evertwoud.netinspektor.desktop.data.FormatStyle
 import com.evertwoud.netinspektor.desktop.ext.formatAsTime
+import com.evertwoud.netinspektor.desktop.ext.formatAsTimeStamp
 import com.evertwoud.netinspektor.desktop.ext.getOrMatchRequest
 import com.evertwoud.netinspektor.desktop.ext.getOrMatchResponse
 import com.evertwoud.netinspektor.desktop.ext.statusCodeColor
@@ -59,7 +61,7 @@ fun EventDetailScreen(
             if (event is NetInspektorEvent.Response) {
                 event.getOrMatchRequest(viewModel.session)?.let { match ->
                     Link(
-                        text ="Go to request",
+                        text = "Go to request",
                         onClick = {
                             viewModel.selection = match
                         }
@@ -80,38 +82,42 @@ fun EventDetailScreen(
                     style = Typography.h1TextStyle(),
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = event.timestamp.formatAsTime(),
-                    maxLines = 1,
-                    color = JewelTheme.colorPalette.gray(7),
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                event.getOrMatchRequest(viewModel.session)?.let { request ->
+                SelectionContainer {
                     Text(
-                        modifier = Modifier.weight(1F),
-                        text = request.method,
-                        style = Typography.h3TextStyle(),
+                        text = event.timestamp.formatAsTimeStamp(),
+                        maxLines = 1,
+                        color = JewelTheme.colorPalette.gray(7),
                     )
                 }
-                Spacer(modifier = Modifier.weight(1F))
-                event.getOrMatchResponse(viewModel.session)?.let { response ->
-                    Text(
-                        modifier = Modifier.clip(shape = RoundedCornerShape(50))
-                            .background(response.statusCodeColor(7))
-                            .padding(horizontal = 8.dp, vertical = 4.dp),
-                        text = listOf(
-                            response.statusCode,
-                            response.statusDescription ?: HttpStatusCode.fromValue(response.statusCode).description
-                        ).joinToString(separator = " - "),
-                        maxLines = 1,
-                        color = response.statusCodeColor(1),
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            SelectionContainer {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    event.getOrMatchRequest(viewModel.session)?.let { request ->
+                        Text(
+                            modifier = Modifier.weight(1F),
+                            text = request.method,
+                            style = Typography.h3TextStyle(),
+                        )
+                    }
+                    Spacer(modifier = Modifier.weight(1F))
+                    event.getOrMatchResponse(viewModel.session)?.let { response ->
+                        Text(
+                            modifier = Modifier.clip(shape = RoundedCornerShape(50))
+                                .background(response.statusCodeColor(7))
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                            text = listOf(
+                                response.statusCode,
+                                response.statusDescription ?: HttpStatusCode.fromValue(response.statusCode).description
+                            ).joinToString(separator = " - "),
+                            maxLines = 1,
+                            color = response.statusCodeColor(1),
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))

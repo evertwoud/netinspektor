@@ -1,9 +1,15 @@
 package com.evertwoud.netinspektor.desktop.ui.events.component
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.expandIn
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.shrinkOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -29,9 +35,11 @@ import com.evertwoud.netinspektor.desktop.ext.getOrMatchRequest
 import com.evertwoud.netinspektor.desktop.ext.getOrMatchResponse
 import com.evertwoud.netinspektor.desktop.ext.statusCodeColor
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.launch
 import org.jetbrains.jewel.foundation.Stroke
 import org.jetbrains.jewel.foundation.modifier.border
 import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.ui.component.Chip
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.component.painterResource
@@ -115,7 +123,13 @@ fun EventRow(
             }
             AnimatedContent(
                 targetState = event.getOrMatchResponse(session),
-                transitionSpec = { fadeIn() togetherWith fadeOut() }
+                transitionSpec = {
+                    fadeIn() + expandIn(
+                        expandFrom = Alignment.CenterStart
+                    ) togetherWith fadeOut() + shrinkOut(
+                        shrinkTowards = Alignment.CenterStart
+                    )
+                }
             ) { response ->
                 if (response != null) {
                     Text(
@@ -130,6 +144,7 @@ fun EventRow(
                     )
                 }
             }
+
             Spacer(modifier = Modifier.weight(1F))
             Text(
                 text = event.timestamp.formatAsTime(),
