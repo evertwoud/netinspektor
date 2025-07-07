@@ -1,5 +1,6 @@
 package com.evertwoud.netinspektor.example
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.evertwoud.netinspektor.client.session.NetInspektorSession
@@ -35,7 +37,7 @@ fun ClientComponent(
     modifier: Modifier = Modifier,
     session: NetInspektorSession,
     index: Int,
-    onRemove : () -> Unit,
+    onRemove: () -> Unit,
 ) {
     var request by remember { mutableStateOf<NetInspektorEvent.Request?>(null) }
     var requestCount by remember { mutableIntStateOf(0) }
@@ -82,56 +84,59 @@ fun ClientComponent(
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
-                OutlinedButton(
-                    content = { Text("Request") },
-                    onClick = {
-                        request = NetInspektorEvent.Request(
-                            method = "GET",
-                            url = "https://www.evertwoud.com/",
-                            headers = emptyList(),
-                            body = null
-                        )
-                        session.logRequest(request!!)
-                        requestCount++
-                    },
-                )
-
-                OutlinedButton(
-                    content = { Text("Response") },
-                    enabled = request != null,
-                    onClick = {
-                        val success = Random.nextBoolean()
-                        session.logResponse(
-                            NetInspektorEvent.Response(
-                                requestUuid = request!!.uuid,
-                                headers = listOf(
-                                    "Host: code.tutsplus.com",
-                                    "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                                    "Accept-Language: en-us,en;q=0.5",
-                                    "Accept-Encoding: gzip,deflate",
-                                ),
-                                statusCode = when (success) {
-                                    true -> 200
-                                    false -> 500
-                                },
-                                body = when (success) {
-                                    true -> buildJsonObject {
-                                        put("response", "ok!")
-                                        put("works", true)
-                                        put("timestamp", request!!.timestamp)
-                                    }
-
-                                    false -> buildJsonObject {
-                                        put("response", "false!")
-                                        put("works", false)
-                                    }
-                                }.toString()
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    OutlinedButton(
+                        modifier = Modifier.weight(1F),
+                        content = { Text("Request", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                        onClick = {
+                            request = NetInspektorEvent.Request(
+                                method = "GET",
+                                url = "https://www.evertwoud.com/",
+                                headers = emptyList(),
+                                body = null
                             )
-                        )
-                        responseCount++
-                    },
-                )
+                            session.logRequest(request!!)
+                            requestCount++
+                        },
+                    )
 
+                    OutlinedButton(
+                        modifier = Modifier.weight(1F),
+                        content = { Text("Response", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                        enabled = request != null,
+                        onClick = {
+                            val success = Random.nextBoolean()
+                            session.logResponse(
+                                NetInspektorEvent.Response(
+                                    requestUuid = request!!.uuid,
+                                    headers = listOf(
+                                        "Host: code.tutsplus.com",
+                                        "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                                        "Accept-Language: en-us,en;q=0.5",
+                                        "Accept-Encoding: gzip,deflate",
+                                    ),
+                                    statusCode = when (success) {
+                                        true -> 200
+                                        false -> 500
+                                    },
+                                    body = when (success) {
+                                        true -> buildJsonObject {
+                                            put("response", "ok!")
+                                            put("works", true)
+                                            put("timestamp", request!!.timestamp)
+                                        }
+
+                                        false -> buildJsonObject {
+                                            put("response", "false!")
+                                            put("works", false)
+                                        }
+                                    }.toString()
+                                )
+                            )
+                            responseCount++
+                        },
+                    )
+                }
                 TextButton(
                     content = { Text("Clear history") },
                     onClick = {

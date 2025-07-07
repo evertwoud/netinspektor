@@ -55,6 +55,7 @@ kotlin {
             implementation(libs.kermit)
             implementation(libs.kotlinx.coroutines)
             implementation(libs.kotlinx.serialization)
+            implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
         }
         desktopMain.dependencies {

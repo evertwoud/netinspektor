@@ -8,8 +8,8 @@ plugins {
     alias(libs.plugins.kotlinxSerialization)
 }
 
-group = rootProject.extra.properties["library_group"] as String
-version = rootProject.extra.properties["library_version"] as String
+group = "com.evertwoud.netinspektor"
+version = "1.0.0"
 
 publishing {
     repositories {
@@ -40,6 +40,7 @@ kotlin {
             implementation(projects.netinspektorCore)
             implementation(libs.kotlinx.coroutines)
             implementation(libs.kotlinx.serialization)
+            implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
             implementation(libs.ktor.server.websockets)
             implementation(libs.ktor.server.engine)

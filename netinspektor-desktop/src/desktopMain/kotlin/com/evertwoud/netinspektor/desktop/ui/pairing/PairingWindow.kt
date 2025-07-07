@@ -108,7 +108,6 @@ fun PairingWindow(
                                 )
                                 Text(
                                     text = "${device.platform} | ${device.host}:${device.port}",
-                                    style = Typography.consoleTextStyle(),
                                     color = JewelTheme.colorPalette.gray(9)
                                 )
                             }
