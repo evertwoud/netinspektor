@@ -63,8 +63,11 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.evertwoud.netinspektor.desktop"
+            packageName = "netinspektor"
             packageVersion = "1.0.0"
+            macOS { iconFile.set(project.file("icon/netinspektor.icns")) }
+            windows { iconFile.set(project.file("icon/netinspektor.ico")) }
+            linux { iconFile.set(project.file("icon/netinspektor.png")) }
         }
     }
 }
