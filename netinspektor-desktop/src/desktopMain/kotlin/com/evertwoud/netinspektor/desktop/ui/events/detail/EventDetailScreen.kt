@@ -20,6 +20,7 @@ import com.evertwoud.netinspektor.desktop.ext.formatAsTimeStamp
 import com.evertwoud.netinspektor.desktop.ext.getOrMatchRequest
 import com.evertwoud.netinspektor.desktop.ext.getOrMatchResponse
 import com.evertwoud.netinspektor.desktop.ext.statusCodeColor
+import com.evertwoud.netinspektor.desktop.ext.toCurlRequest
 import com.evertwoud.netinspektor.desktop.ui.component.ContentBlock
 import com.evertwoud.netinspektor.desktop.util.AppControls
 import com.evertwoud.netinspektor.desktop.util.BodyFormatter
@@ -27,10 +28,12 @@ import io.ktor.http.HttpStatusCode
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.intui.standalone.styling.default
 import org.jetbrains.jewel.intui.standalone.styling.light
+import org.jetbrains.jewel.ui.Orientation
 import org.jetbrains.jewel.ui.component.*
 import org.jetbrains.jewel.ui.component.styling.ScrollbarStyle
 import org.jetbrains.jewel.ui.component.styling.ScrollbarVisibility
 import org.jetbrains.jewel.ui.theme.colorPalette
+import org.jetbrains.jewel.ui.theme.dividerStyle
 
 @Composable
 fun EventDetailScreen(
@@ -183,6 +186,18 @@ fun EventDetailScreen(
                     FormatStyle.Original -> event.body.toString()
                 },
             )
+            if (event is NetInspektorEvent.Request) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "cURL",
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                ContentBlock(
+                    modifier = Modifier.fillMaxWidth(),
+                    content = event.toCurlRequest()
+                )
+            }
         }
     }
 }
