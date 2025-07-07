@@ -4,7 +4,9 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format.char
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.DurationUnit
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
@@ -41,3 +43,6 @@ fun Long.formatAsTimeStamp() = Instant.fromEpochMilliseconds(this).let { instant
         instant.toLocalDateTime(TimeZone.currentSystemDefault())
     )
 }
+
+@OptIn(ExperimentalTime::class)
+fun Long.formatAsDuration() = this.milliseconds.toString()

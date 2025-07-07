@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.evertwoud.netinspektor.core.event.NetInspektorEvent
 import com.evertwoud.netinspektor.desktop.MainViewModel
 import com.evertwoud.netinspektor.desktop.data.FormatStyle
+import com.evertwoud.netinspektor.desktop.ext.formatAsDuration
 import com.evertwoud.netinspektor.desktop.ext.formatAsTime
 import com.evertwoud.netinspektor.desktop.ext.formatAsTimeStamp
 import com.evertwoud.netinspektor.desktop.ext.getOrMatchRequest
@@ -92,6 +93,21 @@ fun EventDetailScreen(
                         color = JewelTheme.colorPalette.gray(7),
                     )
                 }
+                if (event is NetInspektorEvent.Response) {
+                    val duration = remember(event) {
+                        val request = event.getOrMatchRequest(viewModel.session) ?: return@remember null
+                        return@remember event.timestamp - request.timestamp
+                    }
+                    duration?.let {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        SelectionContainer {
+                            Text(
+                                text = it.formatAsDuration(),
+                                maxLines = 1,
+                            )
+                        }
+                    }
+                }
             }
             Spacer(modifier = Modifier.height(8.dp))
             SelectionContainer {
@@ -119,7 +135,6 @@ fun EventDetailScreen(
                             maxLines = 1,
                             color = response.statusCodeColor(1),
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
                     }
                 }
             }
