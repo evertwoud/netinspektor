@@ -162,7 +162,7 @@ fun EventRow(
                 modifier = Modifier.fillMaxWidth(),
                 text = when (request != null) {
                     true -> request.url
-                    false -> "unknown url"
+                    false -> "Unknown request"
                 },
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
