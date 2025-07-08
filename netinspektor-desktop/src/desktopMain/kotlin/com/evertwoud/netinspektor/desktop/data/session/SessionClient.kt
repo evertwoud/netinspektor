@@ -50,10 +50,14 @@ class SessionClient @OptIn(ExperimentalUuidApi::class) constructor(
     val filteredEvents by derivedStateOf {
         data.events.toList().filter { event ->
             // Filter matching urls
-            event.getOrMatchRequest(this)?.url?.contains(
-                other = searchQuery.text,
-                ignoreCase = true
-            ) ?: false
+            when (searchQuery.text.isNotEmpty()) {
+                true -> event.getOrMatchRequest(this)?.url?.contains(
+                    other = searchQuery.text,
+                    ignoreCase = true
+                ) ?: false
+
+                false -> true
+            }
         }
     }
 
