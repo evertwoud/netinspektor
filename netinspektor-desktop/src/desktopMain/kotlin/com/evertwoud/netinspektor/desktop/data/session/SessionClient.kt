@@ -1,5 +1,7 @@
 package com.evertwoud.netinspektor.desktop.data.session
 
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,6 +12,7 @@ import com.evertwoud.netinspektor.core.socket.NetInspektorMetadata
 import com.evertwoud.netinspektor.core.socket.NetInspektorSessionHistory
 import com.evertwoud.netinspektor.desktop.data.model.SessionData
 import com.evertwoud.netinspektor.desktop.ext.decodeToJsonElement
+import com.evertwoud.netinspektor.desktop.ext.getOrMatchRequest
 import com.evertwoud.netinspektor.desktop.ext.send
 import com.evertwoud.netinspektor.desktop.util.SerializerUtil
 import io.ktor.client.*
@@ -35,12 +38,24 @@ class SessionClient @OptIn(ExperimentalUuidApi::class) constructor(
 ) {
     private val json = SerializerUtil.json
 
+    val searchQuery = TextFieldState(initialText = "")
+
     val data = SessionData()
 
     var metadata by mutableStateOf<NetInspektorMetadata?>(null)
         private set
 
     var running by mutableStateOf(false)
+
+    val filteredEvents by derivedStateOf {
+        data.events.toList().filter { event ->
+            // Filter matching urls
+            event.getOrMatchRequest(this)?.url?.contains(
+                other = searchQuery.text,
+                ignoreCase = true
+            ) ?: false
+        }
+    }
 
     @OptIn(ExperimentalEncodingApi::class)
     suspend fun connect(

@@ -45,49 +45,34 @@ fun ContentBlock(
     val clipboardManager = LocalClipboardManager.current
     val scope = rememberCoroutineScope()
 
-    val scrollbarStyle = remember {
-        val base = ScrollbarStyle.light()
-        ScrollbarStyle(
-            colors = base.colors,
-            metrics = base.metrics,
-            trackClickBehavior = base.trackClickBehavior,
-            scrollbarVisibility = ScrollbarVisibility.WhenScrolling.default(),
-        )
-    }
-
     Box(
-        modifier = modifier
+        modifier = modifier.background(
+            color = JewelTheme.textAreaStyle.colors.background,
+            shape = RoundedCornerShape(4.dp)
+        ).border(
+            alignment = Stroke.Alignment.Inside,
+            width = 1.dp,
+            color = JewelTheme.textAreaStyle.colors.border,
+            shape = RoundedCornerShape(4.dp),
+        )
     ) {
-        HorizontallyScrollableContainer(
-            modifier = Modifier.background(
-                color = JewelTheme.textAreaStyle.colors.background,
-                shape = RoundedCornerShape(4.dp)
-            ).border(
-                alignment = Stroke.Alignment.Inside,
-                width = 1.dp,
-                color = JewelTheme.textAreaStyle.colors.border,
-                shape = RoundedCornerShape(4.dp),
-            ),
-            style = scrollbarStyle,
+        Column(
+            modifier = Modifier.padding(12.dp),
         ) {
-            Column(
-                modifier = Modifier.padding(12.dp),
-            ) {
-                SelectionContainer {
-                    when (!content.isNullOrBlank()) {
-                        true -> Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = content,
-                            style = Typography.consoleTextStyle(),
-                        )
+            SelectionContainer {
+                when (!content.isNullOrBlank()) {
+                    true -> Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = content,
+                        style = Typography.consoleTextStyle(),
+                    )
 
-                        else -> Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = "No content",
-                            style = Typography.consoleTextStyle(),
-                            color = JewelTheme.colorPalette.gray(6)
-                        )
-                    }
+                    else -> Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "No content",
+                        style = Typography.consoleTextStyle(),
+                        color = JewelTheme.colorPalette.gray(6)
+                    )
                 }
             }
         }

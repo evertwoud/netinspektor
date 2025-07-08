@@ -1,12 +1,17 @@
 package com.evertwoud.netinspektor.desktop.data.model
 
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.text.TextRange
 import com.evertwoud.netinspektor.core.event.NetInspektorEvent
+import com.evertwoud.netinspektor.desktop.ext.getOrMatchRequest
 
 class SessionData {
     var archive by mutableStateOf(Archive())

@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -58,7 +60,7 @@ fun EventOverviewScreen(
             scrollbarVisibility = ScrollbarVisibility.WhenScrolling.default(),
         )
     }
-    var autoScrollEnabled by remember { mutableStateOf(true) }
+    var autoScrollEnabled by remember { mutableStateOf(false) }
     var showScrollEffect by remember { mutableStateOf(false) }
     val autoScroll by remember { derivedStateOf { scrollState.canScrollForward && autoScrollEnabled } }
 
@@ -84,7 +86,7 @@ fun EventOverviewScreen(
                                 .onPreviewKeyEvent { event ->
                                     if (event.type == KeyEventType.KeyDown) {
                                         viewModel.selection?.let { selection ->
-                                            viewModel.session?.data?.events?.let { list ->
+                                            viewModel.session?.filteredEvents?.let { list ->
                                                 val index = list.indexOf(selection)
                                                 when (event.key) {
                                                     Key.DirectionDown -> {
@@ -129,11 +131,11 @@ fun EventOverviewScreen(
                                 }
                         ) {
                             LaunchedEffect(session) {
-                                scrollState.animateScrollToItem(session.data.events.size)
+                                scrollState.animateScrollToItem(session.filteredEvents.size)
                             }
-                            LaunchedEffect(session.data.events) {
+                            LaunchedEffect(session.filteredEvents) {
                                 if (scrollState.canScrollForward) {
-                                    if (autoScroll) scrollState.animateScrollToItem(session.data.events.size)
+                                    if (autoScroll) scrollState.animateScrollToItem(session.filteredEvents.size)
                                     showScrollEffect = true
                                     delay(0.75.seconds)
                                     showScrollEffect = false
@@ -149,12 +151,13 @@ fun EventOverviewScreen(
                                 if (!session.data.archive.isEmpty) {
                                     item(key = "restore-archive") {
                                         Chip(
+                                            modifier = Modifier,
                                             content = { Text("Restore archive") },
                                             onClick = { session.data.restoreArchive() }
                                         )
                                     }
                                 }
-                                items(items = session.data.events, key = { it.uuid }) { event ->
+                                items(items = session.filteredEvents, key = { it.uuid }) { event ->
                                     EventRow(
                                         modifier = Modifier.fillMaxWidth(),
                                         session = session,
@@ -178,7 +181,7 @@ fun EventOverviewScreen(
                                     content = { Text("Scroll to bottom") },
                                     onClick = {
                                         scope.launch {
-                                            scrollState.animateScrollToItem(session.data.events.size)
+                                            scrollState.animateScrollToItem(session.filteredEvents.size)
                                         }
                                     }
                                 )
@@ -213,7 +216,8 @@ fun EventOverviewScreen(
                     )
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         SelectableIconActionButton(
                             key = AllIconsKeys.RunConfigurations.Scroll_down,
@@ -222,14 +226,20 @@ fun EventOverviewScreen(
                             onClick = {
                                 scope.launch {
                                     autoScrollEnabled = !autoScrollEnabled
-                                    scrollState.animateScrollToItem(session.data.events.size)
+                                    scrollState.animateScrollToItem(session.filteredEvents.size)
                                 }
                             },
                         )
-                        Spacer(modifier = Modifier.weight(1F))
+                        TextField(
+                            modifier = Modifier.weight(1F),
+                            state = session.searchQuery,
+                            placeholder = {
+                                Text("Filter...")
+                            }
+                        )
                         IconButton(
                             onClick = { session.data.archive() },
-                            enabled = session.data.events.isNotEmpty()
+                            enabled = session.filteredEvents.isNotEmpty()
                         ) {
                             Icon(
                                 key = AllIconsKeys.Actions.ClearCash,

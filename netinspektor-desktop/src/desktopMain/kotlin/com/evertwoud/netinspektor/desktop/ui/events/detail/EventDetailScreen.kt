@@ -60,7 +60,7 @@ fun EventDetailScreen(
         modifier = modifier.fillMaxSize()
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(16.dp)
+            modifier = Modifier.fillMaxWidth().padding(24.dp)
         ) {
             if (event is NetInspektorEvent.Response) {
                 event.getOrMatchRequest(viewModel.session)?.let { match ->

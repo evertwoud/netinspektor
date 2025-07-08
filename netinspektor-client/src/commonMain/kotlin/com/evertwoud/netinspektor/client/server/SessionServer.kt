@@ -63,9 +63,7 @@ class SessionServer(val session: NetInspektorSession) {
                 port.emit("not-set")
             }
             // If unexpected reconnect
-            if (!closeExpected) {
-                start(onServiceAvailable)
-            }
+            if (!closeExpected) start(onServiceAvailable)
         }
     }
 

@@ -121,28 +121,17 @@ fun EventRow(
                     fontSize = 11.sp,
                 )
             }
-            AnimatedContent(
-                targetState = event.getOrMatchResponse(session),
-                transitionSpec = {
-                    fadeIn() + expandIn(
-                        expandFrom = Alignment.CenterStart
-                    ) togetherWith fadeOut() + shrinkOut(
-                        shrinkTowards = Alignment.CenterStart
-                    )
-                }
-            ) { response ->
-                if (response != null) {
-                    Text(
-                        text = listOf(
-                            response.statusCode,
-                            response.statusDescription ?: HttpStatusCode.fromValue(response.statusCode).description
-                        ).joinToString(separator = " - "),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        fontSize = 11.sp,
-                        color = JewelTheme.colorPalette.gray(9),
-                    )
-                }
+            event.getOrMatchResponse(session)?.let { response ->
+                Text(
+                    text = listOf(
+                        response.statusCode,
+                        response.statusDescription ?: HttpStatusCode.fromValue(response.statusCode).description
+                    ).joinToString(separator = " - "),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = 11.sp,
+                    color = JewelTheme.colorPalette.gray(9),
+                )
             }
 
             Spacer(modifier = Modifier.weight(1F))
@@ -174,5 +163,3 @@ fun EventRow(
         }
     }
 }
-
-
