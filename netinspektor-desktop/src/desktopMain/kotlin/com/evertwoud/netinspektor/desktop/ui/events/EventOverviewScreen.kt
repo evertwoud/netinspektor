@@ -149,7 +149,6 @@ fun EventOverviewScreen(
                                 if (!session.data.archive.isEmpty) {
                                     item(key = "restore-archive") {
                                         Chip(
-                                            modifier = Modifier.animateItem(),
                                             content = { Text("Restore archive") },
                                             onClick = { session.data.restoreArchive() }
                                         )
@@ -157,7 +156,7 @@ fun EventOverviewScreen(
                                 }
                                 items(items = session.data.events, key = { it.uuid }) { event ->
                                     EventRow(
-                                        modifier = Modifier.fillMaxWidth().animateItem(),
+                                        modifier = Modifier.fillMaxWidth(),
                                         session = session,
                                         event = event,
                                         selected = event == viewModel.selection,

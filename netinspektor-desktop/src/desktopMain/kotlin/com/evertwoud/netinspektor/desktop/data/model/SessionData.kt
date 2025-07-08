@@ -16,7 +16,7 @@ class SessionData {
     val responses = mutableStateListOf<NetInspektorEvent.Response>()
 
     val events by derivedStateOf {
-        (requests + responses).sortedBy { it.timestamp }
+        (requests.toList() + responses.toList()).sortedBy { it.timestamp }
     }
 
     fun restoreArchive() {

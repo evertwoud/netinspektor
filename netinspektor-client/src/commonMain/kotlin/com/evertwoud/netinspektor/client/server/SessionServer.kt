@@ -19,12 +19,9 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.time.Duration.Companion.seconds
 
@@ -39,11 +36,14 @@ class SessionServer(val session: NetInspektorSession) {
     val running = MutableStateFlow(false)
     val clientCount = MutableStateFlow(0)
 
+    private var closeExpected = false
+
     var serverJob: Job? = null
 
     fun start(
         onServiceAvailable: suspend (host: String, port: Int) -> Unit,
     ) {
+        closeExpected = false
         serverJob = scope.launch(Dispatchers.IO) {
             server = create()
             server?.startSuspend(wait = false)
@@ -62,10 +62,17 @@ class SessionServer(val session: NetInspektorSession) {
                 running.emit(false)
                 port.emit("not-set")
             }
+            // If unexpected reconnect
+            if (!closeExpected) {
+                start(onServiceAvailable)
+            }
         }
     }
 
-    fun stop() = serverJob?.cancel()
+    fun stop() {
+        closeExpected = true
+        serverJob?.cancel()
+    }
 
     fun emitEvent(event: NetInspektorEvent) = scope.launch {
         events.emit(event)
