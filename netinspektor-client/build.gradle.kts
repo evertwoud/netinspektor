@@ -47,6 +47,7 @@ kotlin {
             implementation(libs.ktor.client.websockets)
             implementation(libs.ktor.client.engine)
             implementation(libs.konnection)
+            implementation(libs.logging)
         }
     }
 }

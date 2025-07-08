@@ -1,6 +1,10 @@
 package com.evertwoud.netinspektor.desktop.data.discovery
 
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.evertwoud.netinspektor.core.NetInspektorConstants.DISCOVERY_SERVER_PATH
 import com.evertwoud.netinspektor.core.NetInspektorConstants.DISCOVERY_SERVER_PORT
 import com.evertwoud.netinspektor.core.socket.NetInspektorDevice
@@ -29,13 +33,15 @@ import kotlinx.serialization.json.jsonPrimitive
 class DiscoveryServer(
     val adb: AdbService
 ) {
-    private val scope = CoroutineScope(Dispatchers.IO)
-
     var server: EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration>? = null
 
     private val json = SerializerUtil.json
 
     val discoveredDevices = mutableStateListOf<NetInspektorDevice>()
+
+    val isRunning by derivedStateOf {
+        server?.application != null
+    }
 
     suspend fun start() {
         server = create()
@@ -93,7 +99,7 @@ class DiscoveryServer(
                             }
                         }
                     } catch (e: Throwable) {
-                        println("Unable to process frame $frame")
+                        println("Unable to process frame $frame, $e")
                     }
                 }
             }

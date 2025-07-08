@@ -66,6 +66,13 @@ fun PairingWindow(
                 Text("Pairing")
             }
             Column(modifier = Modifier.fillMaxSize().background(JewelTheme.colorPalette.gray(1))) {
+                if (!viewModel.discovery.server.isRunning) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth().background(JewelTheme.colorPalette.red(7)).padding(8.dp),
+                        text = "⚠ Discovery server not running",
+                        color = JewelTheme.colorPalette.gray(1)
+                    )
+                }
                 SelectableLazyColumn(
                     modifier = Modifier.weight(1F).fillMaxWidth(),
                     selectionMode = SelectionMode.Single,
