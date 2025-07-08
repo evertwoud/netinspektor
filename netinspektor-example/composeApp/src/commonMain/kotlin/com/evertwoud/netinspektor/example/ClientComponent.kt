@@ -137,19 +137,23 @@ fun ClientComponent(
                         },
                     )
                 }
-                TextButton(
-                    content = { Text("Clear history") },
-                    onClick = {
-                        session.clearHistory()
-                        requestCount = 0
-                        responseCount = 0
-                    },
-                )
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    TextButton(
+                        modifier = Modifier.weight(1F),
+                        content = { Text("Clear history") },
+                        onClick = {
+                            session.clearHistory()
+                            requestCount = 0
+                            responseCount = 0
+                        },
+                    )
 
-                TextButton(
-                    content = { Text("Delete") },
-                    onClick = onRemove,
-                )
+                    TextButton(
+                        modifier = Modifier.weight(1F),
+                        content = { Text("Delete") },
+                        onClick = onRemove,
+                    )
+                }
             }
         }
     }

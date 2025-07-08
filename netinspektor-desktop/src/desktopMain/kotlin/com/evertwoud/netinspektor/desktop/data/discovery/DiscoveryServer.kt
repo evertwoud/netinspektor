@@ -78,8 +78,15 @@ class DiscoveryServer(
                                     ).let { device ->
                                         println("Device availability announced: $device")
                                         // Attempt device bridging
-                                        println("Device forwarding started")
-                                        val didForward = adb.discoverAndForward(port = device.port)
+                                        val didForward = if (device.platform == "android") {
+                                            try {
+                                                println("Attempt device forwarding")
+                                                adb.discoverAndForward(port = device.port)
+                                            } catch (e: Exception) {
+                                                println("Unable to forward: $e")
+                                                false
+                                            }
+                                        } else false
                                         val newDevice = when (didForward) {
                                             // If port was forwarded, migrate to local host
                                             true -> device.copy(host = "127.0.0.1")
