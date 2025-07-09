@@ -6,9 +6,15 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +24,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.jewel.foundation.ExperimentalJewelApi
@@ -46,65 +53,30 @@ fun ContentBlock(
     val scope = rememberCoroutineScope()
 
     Box(
-        modifier = modifier.background(
-            color = JewelTheme.textAreaStyle.colors.background,
-            shape = RoundedCornerShape(4.dp)
-        ).border(
-            alignment = Stroke.Alignment.Inside,
-            width = 1.dp,
-            color = JewelTheme.textAreaStyle.colors.border,
-            shape = RoundedCornerShape(4.dp),
-        )
+        modifier = modifier
     ) {
-        Column(
-            modifier = Modifier.padding(12.dp),
-        ) {
-            SelectionContainer {
-                when (!content.isNullOrBlank()) {
-                    true -> Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = content,
-                        style = Typography.consoleTextStyle(),
-                    )
-
-                    else -> Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = "No content",
-                        style = Typography.consoleTextStyle(),
-                        color = JewelTheme.colorPalette.gray(6)
-                    )
-                }
-            }
-        }
+        TextArea(
+            modifier = Modifier.fillMaxWidth(),
+            value = when (!content.isNullOrBlank()) {
+                true -> content
+                else -> "No content"
+            },
+            decorationBoxModifier = Modifier.padding(12.dp),
+            onValueChange = {},
+            enabled = !content.isNullOrBlank(),
+            readOnly = true,
+        )
         if (allowCopy && !content.isNullOrBlank()) {
-            var copied by remember { mutableStateOf(false) }
             IconActionButton(
                 modifier = Modifier.align(Alignment.TopEnd),
                 contentDescription = "Copy to clipboard",
-                key = when (copied) {
-                    true -> AllIconsKeys.Actions.Checked
-                    false -> AllIconsKeys.Actions.Copy
-                },
-                style = IconButtonStyle(
-                    colors = IconButtonColors.dark(
-                        backgroundFocused = when (copied) {
-                            true -> JewelTheme.colorPalette.green(4)
-                            false -> Color.Unspecified
-                        },
-                    ),
-                    metrics = JewelTheme.iconButtonStyle.metrics
-                ),
+                key = AllIconsKeys.Actions.Copy,
                 onClick = {
-                    scope.launch {
-                        clipboardManager.setText(
-                            annotatedString = buildAnnotatedString {
-                                append(text = content)
-                            }
-                        )
-                        copied = true
-                        delay(2.seconds)
-                        copied = false
-                    }
+                    clipboardManager.setText(
+                        annotatedString = buildAnnotatedString {
+                            append(text = content)
+                        }
+                    )
                 },
                 tooltipModifier = Modifier.align(Alignment.TopEnd),
                 tooltip = { Text("Copy to clipboard") },

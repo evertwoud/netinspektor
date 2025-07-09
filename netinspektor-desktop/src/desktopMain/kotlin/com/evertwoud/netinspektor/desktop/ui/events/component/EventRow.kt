@@ -59,7 +59,7 @@ fun EventRow(
 ) {
     val shape = RoundedCornerShape(4.dp)
     val borderColor = when {
-        selected -> JewelTheme.colorPalette.blue(7)
+        selected -> JewelTheme.colorPalette.blue(9)
         linked -> JewelTheme.colorPalette.gray(5)
         else -> JewelTheme.colorPalette.gray(3)
     }
@@ -163,3 +163,5 @@ fun EventRow(
         }
     }
 }
+
+

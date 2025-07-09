@@ -12,7 +12,7 @@ data object BodyFormatter {
         // Setup Json configuration for pretty print
         val json = Json {
             prettyPrint = true
-            prettyPrintIndent = "  "
+            prettyPrintIndent = FormatConstants.INDENT
         }
         return when (input) {
             is String -> try {

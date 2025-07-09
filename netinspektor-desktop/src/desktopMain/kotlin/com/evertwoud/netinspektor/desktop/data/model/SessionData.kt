@@ -32,7 +32,7 @@ class SessionData {
 
     fun archive() {
         // Write data to archive
-        archive.write(requests, responses)
+        archive.write(requests.toList(), responses.toList())
         // Clear current data
         requests.clear()
         responses.clear()
@@ -40,13 +40,13 @@ class SessionData {
 
     fun matchRequestFor(
         response: NetInspektorEvent.Response
-    ): NetInspektorEvent.Request? = requests.firstOrNull { request ->
+    ): NetInspektorEvent.Request? = requests.toList().firstOrNull { request ->
         response.requestUuid == request.uuid
     }
 
     fun matchResponsesFor(
         request: NetInspektorEvent.Request
-    ): List<NetInspektorEvent.Response> = responses.filter { response ->
+    ): List<NetInspektorEvent.Response> = responses.toList().filter { response ->
         response.requestUuid == request.uuid
     }
 

@@ -3,6 +3,7 @@ package com.evertwoud.netinspektor.desktop.ui.pairing
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.onClick
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
@@ -16,15 +17,6 @@ import com.evertwoud.netinspektor.desktop.MainViewModel
 import org.jetbrains.jewel.foundation.lazy.SelectableLazyColumn
 import org.jetbrains.jewel.foundation.lazy.SelectionMode
 import org.jetbrains.jewel.foundation.theme.JewelTheme
-import org.jetbrains.jewel.intui.standalone.theme.IntUiTheme
-import org.jetbrains.jewel.intui.standalone.theme.createDefaultTextStyle
-import org.jetbrains.jewel.intui.standalone.theme.createEditorTextStyle
-import org.jetbrains.jewel.intui.standalone.theme.darkThemeDefinition
-import org.jetbrains.jewel.intui.standalone.theme.default
-import org.jetbrains.jewel.intui.standalone.theme.lightThemeDefinition
-import org.jetbrains.jewel.intui.window.decoratedWindow
-import org.jetbrains.jewel.intui.window.styling.dark
-import org.jetbrains.jewel.ui.ComponentStyling
 import org.jetbrains.jewel.ui.Outline
 import org.jetbrains.jewel.ui.component.DefaultButton
 import org.jetbrains.jewel.ui.component.Text
@@ -35,7 +27,6 @@ import org.jetbrains.jewel.ui.theme.colorPalette
 import org.jetbrains.jewel.window.DecoratedWindow
 import org.jetbrains.jewel.window.TitleBar
 import org.jetbrains.jewel.window.newFullscreenControls
-import org.jetbrains.jewel.window.styling.TitleBarStyle
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -45,8 +36,14 @@ fun PairingWindow(
 ) {
     var connectionFailed by remember { mutableStateOf(false) }
 
-    val address = rememberTextFieldState("127.0.0.1")
+    val host = rememberTextFieldState()
     val port = rememberTextFieldState()
+
+    LaunchedEffect(viewModel) {
+        if (!viewModel.discovery.server.isRunning) {
+            viewModel.initDiscovery()
+        }
+    }
 
     DecoratedWindow(
         state = rememberWindowState(
@@ -82,7 +79,7 @@ fun PairingWindow(
                                 viewModel.discovery.devices.getOrNull(it)
                             }
                             if (matchingDevice != null) {
-                                address.edit { replace(0, length, matchingDevice.host) }
+                                host.edit { replace(0, length, matchingDevice.host) }
                                 port.edit { replace(0, length, matchingDevice.port.toString()) }
                             }
                         }
@@ -108,6 +105,13 @@ fun PairingWindow(
                                         },
                                     )
                                     .padding(12.dp)
+                                    .onClick(onDoubleClick = {
+                                        viewModel.connect(
+                                            address = device.host,
+                                            port = device.port.toString(),
+                                            onConnected = onClose,
+                                        )
+                                    }, onClick = {})
                             ) {
                                 Text(
                                     text = device.sessionName,
@@ -135,24 +139,26 @@ fun PairingWindow(
                 ) {
                     TextField(
                         modifier = Modifier.weight(1F),
-                        state = address,
+                        state = host,
                         outline = when (connectionFailed) {
                             true -> Outline.Error
                             false -> Outline.None
-                        }
+                        },
+                        placeholder = { Text("Host") }
                     )
                     Spacer(Modifier.width(8.dp))
                     TextField(
                         modifier = Modifier.width(64.dp),
                         state = port,
+                        placeholder = { Text("Port") }
                     )
                     Spacer(Modifier.width(8.dp))
                     DefaultButton(
                         content = { Text("Pair") },
-                        enabled = address.text.isNotEmpty() && port.text.isNotEmpty(),
+                        enabled = host.text.isNotEmpty() && port.text.isNotEmpty(),
                         onClick = {
                             viewModel.connect(
-                                address = address.text.toString(),
+                                address = host.text.toString(),
                                 port = port.text.toString(),
                                 onConnected = onClose,
                             )

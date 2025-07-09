@@ -58,7 +58,7 @@ class SessionClient @OptIn(ExperimentalUuidApi::class) constructor(
 
                 false -> true
             }
-        }
+        }.distinctBy { it.uuid }
     }
 
     @OptIn(ExperimentalEncodingApi::class)

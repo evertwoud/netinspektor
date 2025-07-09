@@ -27,6 +27,7 @@ import com.evertwoud.netinspektor.desktop.ui.events.detail.EventDetailScreen
 import com.evertwoud.netinspektor.desktop.util.AppControls
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.jewel.foundation.lazy.visibleItemsRange
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.intui.standalone.styling.dark
 import org.jetbrains.jewel.intui.standalone.styling.default
@@ -75,78 +76,76 @@ fun EventOverviewScreen(
                     .background(JewelTheme.globalColors.panelBackground),
             ) {
                 viewModel.session?.let { session ->
-                    VerticallyScrollableContainer(
-                        scrollState = scrollState,
-                        style = scrollbarStyle,
-                        modifier = Modifier.fillMaxWidth().weight(1F)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .onPreviewKeyEvent { event ->
-                                    if (event.type == KeyEventType.KeyDown) {
-                                        viewModel.selection?.let { selection ->
-                                            viewModel.session?.filteredEvents?.let { list ->
-                                                val index = list.indexOf(selection)
-                                                when (event.key) {
-                                                    Key.DirectionDown -> {
-                                                        scope.launch {
-                                                            index.plus(1).takeIf { it >= 0 }
-                                                                ?.let { newIndex ->
-                                                                    viewModel.selection =
-                                                                        list.getOrElse(
-                                                                            index = newIndex,
-                                                                            defaultValue = { selection }
-                                                                        )
-                                                                    scrollState.animateScrollToItem(
-                                                                        newIndex
+                    Box(
+                        modifier = Modifier.fillMaxWidth()
+                            .weight(1F)
+                            .onPreviewKeyEvent { event ->
+                                if (event.type == KeyEventType.KeyDown) {
+                                    viewModel.selection?.let { selection ->
+                                        viewModel.session?.filteredEvents?.let { list ->
+                                            val index = list.indexOf(selection)
+                                            when (event.key) {
+                                                Key.DirectionDown -> {
+                                                    scope.launch {
+                                                        index.plus(1).takeIf { it >= 0 }
+                                                            ?.let { newIndex ->
+                                                                viewModel.selection =
+                                                                    list.getOrElse(
+                                                                        index = newIndex,
+                                                                        defaultValue = { selection }
                                                                     )
-                                                                }
-                                                        }
-                                                        true
+                                                                scrollState.animateScrollToItem(newIndex)
+                                                            }
                                                     }
-
-                                                    Key.DirectionUp -> {
-                                                        scope.launch {
-                                                            index.minus(1).takeIf { it >= 0 }
-                                                                ?.let { newIndex ->
-                                                                    viewModel.selection =
-                                                                        list.getOrElse(
-                                                                            index = newIndex,
-                                                                            defaultValue = { selection }
-                                                                        )
-                                                                    scrollState.animateScrollToItem(
-                                                                        newIndex
-                                                                    )
-                                                                }
-                                                        }
-                                                        true
-                                                    }
-
-                                                    else -> false
+                                                    true
                                                 }
+
+                                                Key.DirectionUp -> {
+                                                    scope.launch {
+                                                        index.minus(1).takeIf { it >= 0 }
+                                                            ?.let { newIndex ->
+                                                                viewModel.selection =
+                                                                    list.getOrElse(
+                                                                        index = newIndex,
+                                                                        defaultValue = { selection }
+                                                                    )
+                                                                scrollState.animateScrollToItem(newIndex)
+                                                            }
+                                                    }
+                                                    true
+                                                }
+
+                                                else -> false
                                             }
-                                        } ?: false
-                                    } else false
-                                }
+                                        }
+                                    } ?: false
+                                } else false
+                            }
+                    ) {
+                        LaunchedEffect(session) {
+                            scrollState.animateScrollToItem(session.filteredEvents.size)
+                        }
+
+                        LaunchedEffect(session.filteredEvents) {
+                            if (scrollState.canScrollForward) {
+                                if (autoScroll) scrollState.animateScrollToItem(session.filteredEvents.size)
+                                showScrollEffect = true
+                                delay(0.75.seconds)
+                                showScrollEffect = false
+                            }
+                        }
+
+                        VerticallyScrollableContainer(
+                            modifier = Modifier.fillMaxSize(),
+                            scrollState = scrollState,
+                            style = scrollbarStyle,
                         ) {
-                            LaunchedEffect(session) {
-                                scrollState.animateScrollToItem(session.filteredEvents.size)
-                            }
-                            LaunchedEffect(session.filteredEvents) {
-                                if (scrollState.canScrollForward) {
-                                    if (autoScroll) scrollState.animateScrollToItem(session.filteredEvents.size)
-                                    showScrollEffect = true
-                                    delay(0.75.seconds)
-                                    showScrollEffect = false
-                                }
-                            }
                             LazyColumn(
                                 modifier = Modifier.fillMaxSize(),
                                 state = scrollState,
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
-                                contentPadding = PaddingValues(10.dp)
+                                contentPadding = PaddingValues(12.dp)
                             ) {
                                 if (!session.data.archive.isEmpty) {
                                     item(key = "restore-archive") {
@@ -157,7 +156,9 @@ fun EventOverviewScreen(
                                         )
                                     }
                                 }
-                                items(items = session.filteredEvents, key = { it.uuid }) { event ->
+                                items(
+                                    items = session.filteredEvents,
+                                    key = { it.uuid }) { event ->
                                     EventRow(
                                         modifier = Modifier.fillMaxWidth(),
                                         session = session,
@@ -169,45 +170,45 @@ fun EventOverviewScreen(
                                     }
                                 }
                             }
+                        }
 
-                            this@Column.AnimatedVisibility(
-                                modifier = Modifier.align(Alignment.BottomCenter),
-                                visible = scrollState.canScrollForward,
-                                enter = expandIn(expandFrom = Alignment.BottomCenter) + fadeIn(),
-                                exit = shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut()
-                            ) {
-                                Chip(
-                                    modifier = Modifier.padding(16.dp).align(Alignment.BottomCenter),
-                                    content = { Text("Scroll to bottom") },
-                                    onClick = {
-                                        scope.launch {
-                                            scrollState.animateScrollToItem(session.filteredEvents.size)
-                                        }
+                        this@Column.AnimatedVisibility(
+                            modifier = Modifier.align(Alignment.BottomCenter),
+                            visible = scrollState.canScrollForward,
+                            enter = expandIn(expandFrom = Alignment.BottomCenter) + fadeIn(),
+                            exit = shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut()
+                        ) {
+                            Chip(
+                                modifier = Modifier.padding(16.dp).align(Alignment.BottomCenter),
+                                content = { Text("Scroll to bottom") },
+                                onClick = {
+                                    scope.launch {
+                                        scrollState.animateScrollToItem(session.filteredEvents.size)
                                     }
-                                )
-                            }
+                                }
+                            )
+                        }
 
-                            this@Column.AnimatedVisibility(
-                                modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter),
-                                visible = showScrollEffect,
-                                enter = expandIn(expandFrom = Alignment.BottomCenter) + fadeIn(),
-                                exit = shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut()
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .alpha(0.5F)
-                                        .height(12.dp)
-                                        .background(
-                                            brush = Brush.verticalGradient(
-                                                colors = listOf(
-                                                    Color.Transparent,
-                                                    JewelTheme.colorPalette.blue(8)
-                                                )
+                        this@Column.AnimatedVisibility(
+                            modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter),
+                            visible = showScrollEffect,
+                            enter = expandIn(expandFrom = Alignment.BottomCenter) + fadeIn(),
+                            exit = shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut()
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .alpha(0.25F)
+                                    .height(8.dp)
+                                    .background(
+                                        brush = Brush.verticalGradient(
+                                            colors = listOf(
+                                                Color.Transparent,
+                                                JewelTheme.colorPalette.blue(8)
                                             )
                                         )
-                                )
-                            }
+                                    )
+                            )
                         }
                     }
                     HorizontalDivider(

@@ -116,6 +116,7 @@ fun main() = application {
                                 tabs = tabs,
                                 style = TabStyle.Editor.dark()
                             )
+                            Spacer(Modifier.width(8.dp))
                             IconButton(
                                 content = {
                                     Icon(

@@ -8,6 +8,7 @@ import com.evertwoud.netinspektor.desktop.data.FormatStyle
 import com.evertwoud.netinspektor.desktop.data.discovery.DiscoveryService
 import com.evertwoud.netinspektor.desktop.data.session.SessionClient
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -16,21 +17,28 @@ import kotlin.uuid.ExperimentalUuidApi
  */
 @OptIn(ExperimentalUuidApi::class)
 class MainViewModel : ViewModel() {
+    private var discoveryJob: Job? = null
     val discovery = DiscoveryService()
 
     // State properties
-    var sessions = mutableStateListOf<SessionClient>()
+    val sessions = mutableStateListOf<SessionClient>()
     var session by mutableStateOf<SessionClient?>(null)
     var selection by mutableStateOf<NetInspektorEvent?>(null)
     var formatStyle by mutableStateOf(FormatStyle.Pretty)
-
-    // Derived state for linked events
-    var linkedEvents = derivedStateOf {
+    val linkedEvents = derivedStateOf {
         session?.data?.matchLinkedEvents(selection)
     }
 
     init {
-        viewModelScope.launch {
+        initDiscovery()
+    }
+
+    /**
+     * Initialize the discovery service
+     */
+    fun initDiscovery() {
+        discoveryJob?.cancel()
+        discoveryJob = viewModelScope.launch {
             discovery.init()
         }
     }

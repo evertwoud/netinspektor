@@ -92,7 +92,7 @@ fun ClientComponent(
                             request = NetInspektorEvent.Request(
                                 method = "GET",
                                 url = "https://www.evertwoud.com/",
-                                headers = emptyList(),
+                                headers = emptyMap(),
                                 body = null
                             )
                             session.logRequest(request!!)
@@ -109,11 +109,11 @@ fun ClientComponent(
                             session.logResponse(
                                 NetInspektorEvent.Response(
                                     requestUuid = request!!.uuid,
-                                    headers = listOf(
-                                        "Host: code.tutsplus.com",
-                                        "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                                        "Accept-Language: en-us,en;q=0.5",
-                                        "Accept-Encoding: gzip,deflate",
+                                    headers = mapOf(
+                                        "Host" to "code.tutsplus.com",
+                                        "Accept" to "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                                        "Accept-Language" to "en-us,en;q=0.5",
+                                        "Accept-Encoding" to "gzip,deflate",
                                     ),
                                     statusCode = when (success) {
                                         true -> 200
