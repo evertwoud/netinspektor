@@ -20,6 +20,7 @@ kermit = "2.0.6"
 ktor = "3.2.1"
 adam = "0.5.10"
 konnection = "1.4.4"
+maven-publish = "0.30.0"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
@@ -53,3 +54,4 @@ composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "k
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "build-tools" }
+mavenPublish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish" }
