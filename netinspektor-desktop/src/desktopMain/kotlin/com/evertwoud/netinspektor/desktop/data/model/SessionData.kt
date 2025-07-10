@@ -6,6 +6,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -20,7 +21,7 @@ class SessionData {
     val requests = mutableStateListOf<NetInspektorEvent.Request>()
     val responses = mutableStateListOf<NetInspektorEvent.Response>()
 
-    val events by derivedStateOf {
+    val events by derivedStateOf(neverEqualPolicy()) {
         (requests.toList() + responses.toList()).sortedBy { it.timestamp }
     }
 

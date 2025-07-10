@@ -4,6 +4,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.setValue
 import com.evertwoud.netinspektor.core.NetInspektorConstants.EVENT_SERVER_PATH
 import com.evertwoud.netinspektor.core.event.NetInspektorEvent
@@ -47,7 +48,7 @@ class SessionClient @OptIn(ExperimentalUuidApi::class) constructor(
 
     var running by mutableStateOf(false)
 
-    val filteredEvents by derivedStateOf {
+    val filteredEvents by derivedStateOf(neverEqualPolicy()) {
         data.events.toList().filter { event ->
             // Filter matching urls
             when (searchQuery.text.isNotEmpty()) {
@@ -58,7 +59,7 @@ class SessionClient @OptIn(ExperimentalUuidApi::class) constructor(
 
                 false -> true
             }
-        }.distinctBy { it.uuid }
+        }.distinctBy { it.uuid }.sortedBy { it.timestamp }
     }
 
     @OptIn(ExperimentalEncodingApi::class)
