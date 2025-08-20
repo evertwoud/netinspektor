@@ -94,6 +94,7 @@ fun EventOverviewScreen(
                                                                         index = newIndex,
                                                                         defaultValue = { selection }
                                                                     )
+
                                                                 scrollState.animateScrollToItem(newIndex)
                                                             }
                                                     }
@@ -143,14 +144,13 @@ fun EventOverviewScreen(
                             LazyColumn(
                                 modifier = Modifier.fillMaxSize(),
                                 state = scrollState,
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 contentPadding = PaddingValues(12.dp)
                             ) {
                                 if (!session.data.archive.isEmpty) {
                                     item(key = "restore-archive") {
                                         Chip(
-                                            modifier = Modifier,
+                                            modifier = Modifier.padding(bottom = 8.dp),
                                             content = { Text("Restore archive") },
                                             onClick = { session.data.restoreArchive() }
                                         )
@@ -160,7 +160,7 @@ fun EventOverviewScreen(
                                     items = session.filteredEvents,
                                     key = { it.uuid }) { event ->
                                     EventRow(
-                                        modifier = Modifier.fillMaxWidth(),
+                                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                                         session = session,
                                         event = event,
                                         selected = event == viewModel.selection,

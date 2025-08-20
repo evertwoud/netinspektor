@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
@@ -16,10 +17,12 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import com.evertwoud.netinspektor.desktop.ui.AppDestination
 import com.evertwoud.netinspektor.desktop.ui.events.EventOverviewScreen
 import com.evertwoud.netinspektor.desktop.ui.pairing.PairingWindow
+import com.evertwoud.netinspektor.desktop.ui.settings.SettingsWindow
 import com.evertwoud.netinspektor.desktop.util.AppControls
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.intui.standalone.styling.Editor
@@ -49,6 +52,7 @@ fun main() = application {
         val controls = AppControls(navController = navController)
 
         var showPairingWindow by remember { mutableStateOf(false) }
+        var showSettingsWindow by remember { mutableStateOf(false) }
 
         val tabs by remember {
             derivedStateOf {
@@ -95,7 +99,7 @@ fun main() = application {
                 ),
                 onCloseRequest = { exitApplication() },
                 title = "netinspektor",
-                alwaysOnTop = false,
+                alwaysOnTop = viewModel.alwaysOnTop,
                 content = {
                     TitleBar(
                         modifier = Modifier.newFullscreenControls(),
@@ -128,6 +132,18 @@ fun main() = application {
                                 },
                                 onClick = { showPairingWindow = true }
                             )
+                            Spacer(Modifier.width(8.dp))
+                            IconButton(
+                                content = {
+                                    Icon(
+                                        AllIconsKeys.General.Settings,
+                                        null,
+                                        modifier = Modifier.size(32.dp).padding(8.dp),
+                                        hint = Size(32)
+                                    )
+                                },
+                                onClick = { showSettingsWindow = true }
+                            )
                         }
                     }
                     NavHost(
@@ -149,6 +165,14 @@ fun main() = application {
                 viewModel = viewModel,
                 onClose = {
                     showPairingWindow = false
+                }
+            )
+
+            if (showSettingsWindow) SettingsWindow(
+                controls = controls,
+                viewModel = viewModel,
+                onClose = {
+                    showSettingsWindow = false
                 }
             )
         }

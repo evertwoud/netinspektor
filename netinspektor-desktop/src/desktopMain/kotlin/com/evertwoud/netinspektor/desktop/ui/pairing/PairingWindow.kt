@@ -18,6 +18,7 @@ import org.jetbrains.jewel.foundation.lazy.SelectableLazyColumn
 import org.jetbrains.jewel.foundation.lazy.SelectionMode
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.Outline
+import org.jetbrains.jewel.ui.component.CircularProgressIndicator
 import org.jetbrains.jewel.ui.component.DefaultButton
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.component.TextField
@@ -35,11 +36,14 @@ fun PairingWindow(
     onClose: () -> Unit
 ) {
     var connectionFailed by remember { mutableStateOf(false) }
+    var pairing by remember { mutableStateOf(false) }
 
     val host = rememberTextFieldState()
     val port = rememberTextFieldState()
 
     LaunchedEffect(viewModel) {
+        pairing = false
+
         if (!viewModel.discovery.server.isRunning) {
             viewModel.initDiscovery()
         }
@@ -53,7 +57,7 @@ fun PairingWindow(
         ),
         onCloseRequest = onClose,
         title = "Pairing",
-        alwaysOnTop = false,
+        alwaysOnTop = viewModel.alwaysOnTop,
         resizable = true,
         content = {
             TitleBar(
@@ -154,13 +158,22 @@ fun PairingWindow(
                     )
                     Spacer(Modifier.width(8.dp))
                     DefaultButton(
-                        content = { Text("Pair") },
-                        enabled = host.text.isNotEmpty() && port.text.isNotEmpty(),
+                        content = {
+                            when (pairing) {
+                                true -> CircularProgressIndicator()
+                                false -> Text("Pair")
+                            }
+                        },
+                        enabled = host.text.isNotEmpty() && port.text.isNotEmpty() && !pairing,
                         onClick = {
+                            pairing = true
                             viewModel.connect(
                                 address = host.text.toString(),
                                 port = port.text.toString(),
-                                onConnected = onClose,
+                                onConnected = {
+                                    pairing = false
+                                    onClose()
+                                },
                             )
                         },
                     )
