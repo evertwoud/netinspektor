@@ -43,16 +43,17 @@ kotlin {
             implementation(libs.ktor.server.engine)
             implementation(libs.ktor.client.websockets)
             implementation(libs.ktor.client.engine)
+            implementation(libs.adam)
         }
         desktopMain.dependencies {
             implementation(libs.jewel)
             implementation(libs.jewel.decorated)
             implementation(libs.jewel.icons)
+            implementation(libs.kotlinx.coroutines.jvm)
+            implementation(libs.kotlinx.coroutines.swing)
             implementation(compose.desktop.currentOs) {
                 exclude(group = "org.jetbrains.compose.material")
             }
-            implementation(libs.kotlinx.coroutines.swing)
-            implementation(libs.adam)
         }
     }
 }
@@ -65,6 +66,7 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "netinspektor"
             packageVersion = "1.0.0"
+            includeAllModules = true
 
             macOS { iconFile.set(project.file("icon/netinspektor.icns")) }
             windows { iconFile.set(project.file("icon/netinspektor.ico")) }

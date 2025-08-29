@@ -1,5 +1,4 @@
 import com.android.build.api.dsl.androidLibrary
-import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -13,7 +12,6 @@ group = "com.evertwoud.netinspektor"
 version = "1.0.0"
 
 mavenPublishing {
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()
     coordinates(group.toString(), "netinspektor-client", version.toString())
     pom {

@@ -22,7 +22,7 @@ class MainViewModel : ViewModel() {
 
     // State properties
     val sessions = mutableStateListOf<SessionClient>()
-    var alwaysOnTop by mutableStateOf(true)
+    var alwaysOnTop by mutableStateOf(false)
     var session by mutableStateOf<SessionClient?>(null)
     var selection by mutableStateOf<NetInspektorEvent?>(null)
     var formatStyle by mutableStateOf(FormatStyle.Pretty)
