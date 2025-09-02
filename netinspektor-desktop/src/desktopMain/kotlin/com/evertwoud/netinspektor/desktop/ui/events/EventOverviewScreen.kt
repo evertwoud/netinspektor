@@ -239,7 +239,10 @@ fun EventOverviewScreen(
                             }
                         )
                         IconButton(
-                            onClick = { session.data.archive() },
+                            onClick = {
+                                viewModel.selection = null
+                                session.data.archive()
+                            },
                             enabled = session.filteredEvents.isNotEmpty()
                         ) {
                             Icon(
