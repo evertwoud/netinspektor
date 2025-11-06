@@ -103,7 +103,7 @@ fun PairingWindow(
                                 modifier = Modifier.fillMaxWidth()
                                     .background(
                                         when {
-                                            isSelected && isActive -> LocalLazyTreeStyle.current.colors.backgroundSelectedFocused
+                                            isSelected && isActive -> LocalLazyTreeStyle.current.colors.backgroundSelectedActive
                                             isSelected && !isActive -> LocalLazyTreeStyle.current.colors.backgroundSelected
                                             else -> Color.Transparent
                                         },

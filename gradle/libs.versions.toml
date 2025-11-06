@@ -13,7 +13,7 @@ kotlin = "2.2.21"
 kotlinx-coroutines = "1.10.2"
 kotlinx-serialization = "1.9.0"
 kotlinx-datetime = "0.7.1"
-jewel = "0.27.0"
+jewel = "0.31.0-253.28086.58"
 jewel-icons = "251.23774.444"
 logging = "2.0.17"
 kermit = "2.0.8"
@@ -21,7 +21,6 @@ ktor = "3.3.2"
 adam = "0.5.10"
 konnection = "1.4.5"
 maven-publish = "0.34.0"
-syntakts = "1.0.0-rc06"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
@@ -36,8 +35,8 @@ kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 navigation = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation" }
-jewel = { module = "org.jetbrains.jewel:jewel-int-ui-standalone-243", version.ref = "jewel" }
-jewel-decorated = { module = "org.jetbrains.jewel:jewel-int-ui-decorated-window-243", version.ref = "jewel" }
+jewel = { module = "org.jetbrains.jewel:jewel-int-ui-standalone", version.ref = "jewel" }
+jewel-decorated = { module = "org.jetbrains.jewel:jewel-int-ui-decorated-window", version.ref = "jewel" }
 jewel-icons = { module = "com.jetbrains.intellij.platform:icons", version.ref = "jewel-icons" }
 logging = { module = "org.slf4j:slf4j-simple", version.ref = "logging" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
