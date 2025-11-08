@@ -13,6 +13,7 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -98,7 +99,7 @@ fun main() = application {
                 ),
                 onCloseRequest = { exitApplication() },
                 title = "netinspektor",
-                alwaysOnTop = viewModel.alwaysOnTop,
+                alwaysOnTop = viewModel.settings.alwaysOnTop.collectAsState(false).value,
                 content = {
                     TitleBar(
                         modifier = Modifier.newFullscreenControls(),

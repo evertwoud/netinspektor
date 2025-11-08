@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.rememberWindowState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.evertwoud.netinspektor.desktop.MainViewModel
 import com.evertwoud.netinspektor.desktop.util.AppControls
 import org.jetbrains.jewel.foundation.theme.JewelTheme
@@ -66,7 +68,7 @@ fun SettingsWindow(
         ),
         onCloseRequest = onClose,
         title = "Pairing",
-        alwaysOnTop = viewModel.alwaysOnTop,
+        alwaysOnTop = viewModel.settings.alwaysOnTop.collectAsState(false).value,
         resizable = true,
         content = {
             TitleBar(
@@ -92,10 +94,8 @@ fun SettingsWindow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Checkbox(
-                            checked = viewModel.alwaysOnTop,
-                            onCheckedChange = {
-                                viewModel.alwaysOnTop = it
-                            }
+                            checked = viewModel.settings.alwaysOnTop.collectAsState(false).value,
+                            onCheckedChange = { viewModel.settings.setAlwaysOnTop(it) }
                         )
                         Text(
                             modifier = Modifier.weight(1F),

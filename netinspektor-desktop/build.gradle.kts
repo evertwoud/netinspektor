@@ -44,6 +44,8 @@ kotlin {
             implementation(libs.ktor.client.websockets)
             implementation(libs.ktor.client.engine)
             implementation(libs.adam)
+            implementation(libs.settings)
+            implementation(libs.settings.coroutines)
         }
         desktopMain.dependencies {
             implementation(libs.jewel)

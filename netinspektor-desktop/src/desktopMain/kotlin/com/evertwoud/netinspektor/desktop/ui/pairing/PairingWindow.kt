@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.rememberWindowState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.evertwoud.netinspektor.desktop.MainViewModel
 import org.jetbrains.jewel.foundation.lazy.SelectableLazyColumn
 import org.jetbrains.jewel.foundation.lazy.SelectionMode
@@ -53,7 +54,7 @@ fun PairingWindow(
         ),
         onCloseRequest = onClose,
         title = "Pairing",
-        alwaysOnTop = viewModel.alwaysOnTop,
+        alwaysOnTop = viewModel.settings.alwaysOnTop.collectAsState(false).value,
         resizable = true,
         content = {
             TitleBar(

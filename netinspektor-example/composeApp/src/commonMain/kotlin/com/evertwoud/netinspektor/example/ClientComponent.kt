@@ -79,6 +79,7 @@ fun ClientComponent(
                     body = response.bodyAsText()
                 )
             )
+            responseCount++
         }
     }
 

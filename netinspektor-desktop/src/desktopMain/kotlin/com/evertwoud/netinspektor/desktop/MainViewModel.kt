@@ -6,10 +6,14 @@ import androidx.lifecycle.viewModelScope
 import com.evertwoud.netinspektor.core.event.NetInspektorEvent
 import com.evertwoud.netinspektor.desktop.data.FormatStyle
 import com.evertwoud.netinspektor.desktop.data.discovery.DiscoveryService
+import com.evertwoud.netinspektor.desktop.data.preferences.NetinspektorPreferences
 import com.evertwoud.netinspektor.desktop.data.session.SessionClient
+import com.russhwolf.settings.PreferencesSettings
+import com.russhwolf.settings.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.util.prefs.Preferences
 import kotlin.uuid.ExperimentalUuidApi
 
 /**
@@ -17,15 +21,14 @@ import kotlin.uuid.ExperimentalUuidApi
  */
 @OptIn(ExperimentalUuidApi::class)
 class MainViewModel : ViewModel() {
+    val settings = NetinspektorPreferences()
     private var discoveryJob: Job? = null
     val discovery = DiscoveryService()
 
     // State properties
     val sessions = mutableStateListOf<SessionClient>()
-    var alwaysOnTop by mutableStateOf(false)
     var session by mutableStateOf<SessionClient?>(null)
     var selection by mutableStateOf<NetInspektorEvent?>(null)
-    var formatStyle by mutableStateOf(FormatStyle.Structured)
     val linkedEvents = derivedStateOf {
         session?.data?.matchLinkedEvents(selection)
     }

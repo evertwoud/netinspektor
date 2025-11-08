@@ -7,6 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +48,7 @@ fun EventDetailScreen(
 ) {
     val clipboardManager = LocalClipboardManager.current
     val scrollState = rememberScrollState()
+    val formatStyle = viewModel.settings.formatStyle.collectAsState(FormatStyle.Original).value
     val scrollbarStyle = remember {
         val base = ScrollbarStyle.dark()
         ScrollbarStyle(
@@ -56,8 +58,8 @@ fun EventDetailScreen(
             scrollbarVisibility = ScrollbarVisibility.WhenScrolling.default(),
         )
     }
-    val bodyContent = remember(viewModel.formatStyle, event) {
-        when (viewModel.formatStyle) {
+    val bodyContent = remember(formatStyle, event) {
+        when (formatStyle) {
             FormatStyle.Structured,
             FormatStyle.Pretty -> BodyFormatter.prettyPrint(input = event.body)
 
@@ -185,8 +187,8 @@ fun EventDetailScreen(
                     menuContent = {
                         FormatStyle.entries.forEach { style ->
                             selectableItem(
-                                selected = viewModel.formatStyle == style,
-                                onClick = { viewModel.formatStyle = style }
+                                selected = formatStyle == style,
+                                onClick = { viewModel.settings.setFormatStyle(style) }
                             ) {
                                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                     Icon(
@@ -202,18 +204,18 @@ fun EventDetailScreen(
                     content = {
                         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Icon(
-                                key = viewModel.formatStyle.icon,
+                                key = formatStyle.icon,
                                 contentDescription = null,
                                 modifier = Modifier.size(16.dp),
                             )
-                            Text(viewModel.formatStyle.label)
+                            Text(formatStyle.label)
                         }
 
                     }
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
-            when (viewModel.formatStyle) {
+            when (formatStyle) {
                 FormatStyle.Structured -> StructuredJsonComponent(
                     modifier = Modifier.fillMaxWidth(),
                     value = event.body.orEmpty(),
