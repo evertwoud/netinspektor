@@ -20,7 +20,7 @@ fun KeyValueListComponent(
     SelectionContainer {
         ContentComponent {
             Column(
-                modifier = modifier.padding(12.dp),
+                modifier = modifier,
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 when {

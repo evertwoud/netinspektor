@@ -5,9 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
@@ -55,9 +53,7 @@ fun StructuredJsonComponent(
     SelectionContainer {
         ContentComponent {
             Column(
-                modifier = modifier
-                    .horizontalScroll(rememberScrollState())
-                    .padding(12.dp),
+                modifier = modifier,
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 when {
