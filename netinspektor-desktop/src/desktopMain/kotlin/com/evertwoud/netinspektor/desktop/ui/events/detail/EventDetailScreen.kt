@@ -1,6 +1,7 @@
 package com.evertwoud.netinspektor.desktop.ui.events.detail
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -50,7 +51,7 @@ fun EventDetailScreen(
     event: NetInspektorEvent,
 ) {
     val clipboardManager = LocalClipboardManager.current
-    val scrollState = rememberScrollState()
+    val scrollState = remember(event) { ScrollState(0) }
     val formatStyle = viewModel.settings.formatStyle.collectAsState(FormatStyle.Original).value
     val scrollbarStyle = remember {
         val base = ScrollbarStyle.dark()

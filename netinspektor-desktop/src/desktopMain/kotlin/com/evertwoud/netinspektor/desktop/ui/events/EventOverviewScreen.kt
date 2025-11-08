@@ -76,6 +76,11 @@ fun EventOverviewScreen(
                     .background(JewelTheme.globalColors.panelBackground),
             ) {
                 viewModel.session?.let { session ->
+                    if (!session.running) {
+                        DefaultWarningBanner(modifier = Modifier.fillMaxWidth()) {
+                            Text("Session ended")
+                        }
+                    }
                     Box(
                         modifier = Modifier.fillMaxWidth()
                             .weight(1F)
