@@ -101,7 +101,7 @@ fun PairingWindow(
                             count = viewModel.discovery.devices.size,
                             key = { index ->
                                 viewModel.discovery.devices.getOrNull(index)?.let {
-                                    "${it.sessionName}[${it.host}:${it.port}]"
+                                    "${it.sessionName}[${it.host}:${it.port}] - $index"
                                 } ?: "not-set"
                             }
                         ) { index ->

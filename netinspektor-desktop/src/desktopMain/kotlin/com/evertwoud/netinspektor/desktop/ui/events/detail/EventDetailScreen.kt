@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.evertwoud.netinspektor.core.event.NetInspektorEvent
 import com.evertwoud.netinspektor.desktop.MainViewModel
@@ -30,9 +31,11 @@ import org.jetbrains.jewel.foundation.ExperimentalJewelApi
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.intui.standalone.styling.dark
 import org.jetbrains.jewel.intui.standalone.styling.default
+import org.jetbrains.jewel.intui.standalone.styling.light
 import org.jetbrains.jewel.ui.component.*
 import org.jetbrains.jewel.ui.component.styling.ScrollbarStyle
 import org.jetbrains.jewel.ui.component.styling.ScrollbarVisibility
+import org.jetbrains.jewel.ui.component.styling.TooltipStyle
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.painter.hints.Size
 import org.jetbrains.jewel.ui.theme.colorPalette
@@ -158,7 +161,8 @@ fun EventDetailScreen(
                 KeyValueListComponent(
                     modifier = Modifier.fillMaxWidth(),
                     content = mapOf(request.method to request.url),
-                    divider = " "
+                    divider = " ",
+                    allowCopy = false
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -218,25 +222,39 @@ fun EventDetailScreen(
             when (formatStyle) {
                 FormatStyle.Structured -> StructuredJsonComponent(
                     modifier = Modifier.fillMaxWidth(),
-                    value = event.body.orEmpty(),
+                    value = bodyContent.orEmpty(),
                 )
 
-                else -> ContentComponent(
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    when {
-                        !bodyContent.isNullOrEmpty() -> Text(
-                            modifier = Modifier.padding(12.dp),
-                            text = bodyContent,
-                            style = JewelTheme.editorTextStyle,
-                            color = JewelTheme.textAreaStyle.colors.content
-                        )
+                else -> Box {
+                    ContentComponent(
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        when {
+                            !bodyContent.isNullOrEmpty() -> Text(
+                                modifier = Modifier,
+                                text = bodyContent,
+                                style = JewelTheme.editorTextStyle,
+                                color = JewelTheme.textAreaStyle.colors.content
+                            )
 
-                        else -> Text(
-                            modifier = Modifier.padding(12.dp),
-                            text = "No content",
-                            style = JewelTheme.editorTextStyle,
-                            color = JewelTheme.textAreaStyle.colors.contentDisabled
+                            else -> Text(
+                                modifier = Modifier,
+                                text = "No content",
+                                style = JewelTheme.editorTextStyle,
+                                color = JewelTheme.textAreaStyle.colors.contentDisabled
+                            )
+                        }
+                    }
+                    if (!bodyContent.isNullOrBlank()) {
+                        IconActionButton(
+                            modifier = Modifier.align(Alignment.TopEnd),
+                            contentDescription = "Copy to clipboard",
+                            key = AllIconsKeys.Actions.Copy,
+                            onClick = { clipboardManager.setText(annotatedString = AnnotatedString(text = bodyContent)) },
+                            tooltipModifier = Modifier.align(Alignment.TopEnd),
+                            tooltip = { Text("Copy to clipboard") },
+                            tooltipStyle = TooltipStyle.light(),
+                            tooltipPlacement = FixedCursorPoint(offset = DpOffset(0.dp, 4.dp))
                         )
                     }
                 }
