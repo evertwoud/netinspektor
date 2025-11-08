@@ -18,6 +18,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.evertwoud.netinspektor.desktop.util.FormatConstants
 import kotlinx.serialization.json.*
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.Icon
@@ -26,7 +27,6 @@ import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.theme.colorPalette
 import org.jetbrains.jewel.ui.theme.textAreaStyle
 
-// Define a type alias for the global state map: Map<KeyPath, IsExpanded>
 private typealias ExpansionStateMap = MutableMap<String, Boolean>
 
 @Composable
@@ -42,13 +42,13 @@ fun StructuredJsonComponent(
         }
     }
     val expansionStates = remember(value) {
-        mutableStateMapOf<String, Boolean>().apply { put("root", true) }
+        mutableStateMapOf<String, Boolean>().apply { put("root", FormatConstants.EXPANDED_BY_DEFAULT) }
     }
 
     // Helper function to update the map, wrapped in a lambda to be passed down
     val onToggle: (String) -> Unit = remember(expansionStates) {
         { path ->
-            expansionStates[path] = !(expansionStates[path] ?: true)
+            expansionStates[path] = !(expansionStates[path] ?: FormatConstants.EXPANDED_BY_DEFAULT)
         }
     }
 
@@ -85,10 +85,10 @@ fun StructuredJsonComponent(
 }
 
 @Composable
-private fun ObjectNode(
+private fun ParentNode(
     modifier: Modifier = Modifier,
     key: String,
-    size: Int,
+    sizeLabel: String,
     isExpanded: Boolean,
     onToggle: () -> Unit,
     isCollapsible: Boolean
@@ -112,43 +112,7 @@ private fun ObjectNode(
                     append(key)
                 }
                 withStyle(SpanStyle(color = JewelTheme.colorPalette.gray(8))) {
-                    append(" {$size}")
-                }
-            },
-            fontFamily = JewelTheme.editorTextStyle.fontFamily
-        )
-    }
-}
-
-@Composable
-private fun ArrayNode(
-    modifier: Modifier = Modifier,
-    key: String,
-    size: Int,
-    isExpanded: Boolean,
-    onToggle: () -> Unit,
-    isCollapsible: Boolean
-) {
-    Row(
-        modifier = modifier.then(if (isCollapsible) Modifier.clickable(onClick = onToggle) else Modifier),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        if (isCollapsible) {
-            Icon(
-                if (isExpanded) AllIconsKeys.General.ChevronDown else AllIconsKeys.General.ChevronRight,
-                contentDescription = null,
-                modifier = Modifier.size(16.dp),
-            )
-            Spacer(Modifier.width(4.dp))
-        }
-
-        Text(
-            text = buildAnnotatedString {
-                withStyle(SpanStyle(color = JewelTheme.colorPalette.yellow(8))) {
-                    append(key)
-                }
-                withStyle(SpanStyle(color = JewelTheme.colorPalette.gray(8))) {
-                    append("[$size]")
+                    append(sizeLabel)
                 }
             },
             fontFamily = JewelTheme.editorTextStyle.fontFamily
@@ -165,7 +129,7 @@ private fun BuildJsonContent(
     expansionStates: ExpansionStateMap,
     onToggle: (String) -> Unit
 ) {
-    val isExpanded = expansionStates[currentPath] ?: true // Default to true if path is missing
+    val isExpanded = expansionStates[currentPath] ?: FormatConstants.EXPANDED_BY_DEFAULT
 
     when (node) {
         is JsonArray -> {
@@ -174,9 +138,9 @@ private fun BuildJsonContent(
                 modifier = modifier,
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                ArrayNode(
+                ParentNode(
                     key = key,
-                    size = node.size,
+                    sizeLabel = " [${node.size}]",
                     isExpanded = isExpanded,
                     onToggle = { onToggle(currentPath) },
                     isCollapsible = isCollapsible
@@ -211,9 +175,9 @@ private fun BuildJsonContent(
                 modifier = modifier,
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                ObjectNode(
+                ParentNode(
                     key = key,
-                    size = node.size,
+                    sizeLabel = " {${node.size}}",
                     isExpanded = isExpanded,
                     onToggle = { onToggle(currentPath) },
                     isCollapsible = isCollapsible,
@@ -246,7 +210,7 @@ private fun BuildJsonContent(
             modifier = modifier,
             key = key,
             value = node.content,
-            divider = ": "
+            divider = ": ",
         )
 
         else -> Unit
