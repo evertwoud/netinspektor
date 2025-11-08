@@ -40,6 +40,7 @@ jewel-decorated = { module = "org.jetbrains.jewel:jewel-int-ui-decorated-window"
 jewel-icons = { module = "com.jetbrains.intellij.platform:icons", version.ref = "jewel-icons" }
 logging = { module = "org.slf4j:slf4j-simple", version.ref = "logging" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-server-websockets = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor" }
 ktor-server-engine = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }
 ktor-client-websockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktor" }

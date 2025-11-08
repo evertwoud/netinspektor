@@ -12,6 +12,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.evertwoud.netinspektor.client.platformIdentifier
 import com.evertwoud.netinspektor.client.session.NetInspektorSession
 import com.evertwoud.netinspektor.core.event.NetInspektorEvent
+import io.ktor.client.HttpClient
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -19,6 +20,8 @@ import kotlinx.serialization.json.put
 @Composable
 internal fun App() {
     val sessions = remember { mutableStateListOf<NetInspektorSession>() }
+    val client = remember { HttpClient() }
+    val scope = rememberCoroutineScope()
 
     MaterialTheme(colorScheme = darkColorScheme()) {
         Scaffold { padding ->
@@ -44,6 +47,8 @@ internal fun App() {
                 sessions.forEachIndexed { index, session ->
                     ClientComponent(
                         modifier = Modifier.fillMaxWidth(),
+                        client = client,
+                        scope = scope,
                         session = session,
                         index = index
                     ) {

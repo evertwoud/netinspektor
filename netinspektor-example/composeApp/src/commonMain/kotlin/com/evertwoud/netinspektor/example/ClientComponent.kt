@@ -28,6 +28,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.evertwoud.netinspektor.client.session.NetInspektorSession
 import com.evertwoud.netinspektor.core.event.NetInspektorEvent
+import io.ktor.client.HttpClient
+import io.ktor.client.request.request
+import io.ktor.client.statement.bodyAsText
+import io.ktor.util.toMap
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlin.random.Random
@@ -35,10 +43,13 @@ import kotlin.random.Random
 @Composable
 fun ClientComponent(
     modifier: Modifier = Modifier,
+    client: HttpClient,
+    scope: CoroutineScope,
     session: NetInspektorSession,
     index: Int,
     onRemove: () -> Unit,
 ) {
+
     var request by remember { mutableStateOf<NetInspektorEvent.Request?>(null) }
     var requestCount by remember { mutableIntStateOf(0) }
     var responseCount by remember { mutableIntStateOf(0) }
@@ -46,6 +57,30 @@ fun ClientComponent(
     val isSessionRunning by session.server.running.collectAsStateWithLifecycle()
     val clients by session.server.clientCount.collectAsStateWithLifecycle()
     val port by session.server.port.collectAsStateWithLifecycle()
+
+    fun makeRequest(url: String) {
+        scope.launch(Dispatchers.IO) {
+            request = NetInspektorEvent.Request(
+                method = "GET",
+                url = url,
+                headers = emptyMap(),
+                body = null
+            )
+            session.logRequest(request!!)
+            requestCount++
+            val response = client.request(url)
+            session.logResponse(
+                NetInspektorEvent.Response(
+                    requestUuid = request!!.uuid,
+                    headers = response.headers.toMap().map { (key, values) -> key to values.joinToString("; ") }
+                        .toMap(),
+                    statusCode = response.status.value,
+                    statusDescription = response.status.description,
+                    body = response.bodyAsText()
+                )
+            )
+        }
+    }
 
     LaunchedEffect(session) {
         if (!isSessionRunning) session.start()
@@ -87,43 +122,27 @@ fun ClientComponent(
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedButton(
                         modifier = Modifier.weight(1F),
-                        content = { Text("Request", maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                        onClick = {
-                            request = NetInspektorEvent.Request(
-                                method = "GET",
-                                url = "https://www.evertwoud.com/",
-                                headers = emptyMap(),
-                                body = null
-                            )
-                            session.logRequest(request!!)
-                            requestCount++
-                        },
+                        content = { Text("Products", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                        onClick = { makeRequest("https://dummyjson.com/products") },
                     )
 
                     OutlinedButton(
                         modifier = Modifier.weight(1F),
-                        content = { Text("Response", maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                        enabled = request != null,
-                        onClick = {
-                            val success = Random.nextBoolean()
-                            session.logResponse(
-                                NetInspektorEvent.Response(
-                                    requestUuid = request!!.uuid,
-                                    headers = mapOf(
-                                        "Host" to "code.tutsplus.com",
-                                        "Accept" to "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                                        "Accept-Language" to "en-us,en;q=0.5",
-                                        "Accept-Encoding" to "gzip,deflate",
-                                    ),
-                                    statusCode = when (success) {
-                                        true -> 200
-                                        false -> 500
-                                    },
-                                    body = "{\"menu\":{\"header\":\"SVG Viewer\",\"items\":[{\"id\":\"Open\"},{\"id\":\"OpenNew\",\"label\":\"Open New\"},{\"id\":\"ZoomIn\",\"label\":\"Zoom In\"},{\"id\":\"ZoomOut\",\"label\":\"Zoom Out\"},{\"id\":\"OriginalView\",\"label\":\"Original View\"},{\"id\":\"Quality\"},{\"id\":\"Pause\"},{\"id\":\"Mute\"},{\"id\":\"Find\",\"label\":\"Find...\"},{\"id\":\"FindAgain\",\"label\":\"Find Again\"},{\"id\":\"Copy\"},{\"id\":\"CopyAgain\",\"label\":\"Copy Again\"},{\"id\":\"CopySVG\",\"label\":\"Copy SVG\"},{\"id\":\"ViewSVG\",\"label\":\"View SVG\"},{\"id\":\"ViewSource\",\"label\":\"View Source\"},{\"id\":\"SaveAs\",\"label\":\"Save As\"},{\"id\":\"Help\"},{\"id\":\"About\",\"label\":\"About Adobe CVG Viewer...\"}]}}"
-                                )
-                            )
-                            responseCount++
-                        },
+                        content = { Text("Carts", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                        onClick = { makeRequest("https://dummyjson.com/carts") },
+                    )
+                }
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    OutlinedButton(
+                        modifier = Modifier.weight(1F),
+                        content = { Text("Comments", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                        onClick = { makeRequest("https://dummyjson.com/comments") },
+                    )
+
+                    OutlinedButton(
+                        modifier = Modifier.weight(1F),
+                        content = { Text("Error", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                        onClick = { makeRequest("https://dummyjson.com/error") },
                     )
                 }
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
