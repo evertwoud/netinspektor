@@ -18,11 +18,7 @@ import org.jetbrains.jewel.foundation.lazy.SelectableLazyColumn
 import org.jetbrains.jewel.foundation.lazy.SelectionMode
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.Outline
-import org.jetbrains.jewel.ui.component.CircularProgressIndicator
-import org.jetbrains.jewel.ui.component.DefaultButton
-import org.jetbrains.jewel.ui.component.Text
-import org.jetbrains.jewel.ui.component.TextField
-import org.jetbrains.jewel.ui.component.Typography
+import org.jetbrains.jewel.ui.component.*
 import org.jetbrains.jewel.ui.component.styling.LocalLazyTreeStyle
 import org.jetbrains.jewel.ui.theme.colorPalette
 import org.jetbrains.jewel.window.DecoratedWindow
@@ -68,11 +64,21 @@ fun PairingWindow(
             }
             Column(modifier = Modifier.fillMaxSize().background(JewelTheme.colorPalette.gray(1))) {
                 if (!viewModel.discovery.server.isRunning) {
-                    Text(
-                        modifier = Modifier.fillMaxWidth().background(JewelTheme.colorPalette.red(7)).padding(8.dp),
-                        text = "⚠ Discovery server not running",
-                        color = JewelTheme.colorPalette.gray(1)
-                    )
+                    DefaultErrorBanner {
+                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(
+                                modifier = Modifier.weight(1F),
+                                text = "Discovery server not running",
+                            )
+                            Link(
+                                text = "Reload",
+                                onClick = {
+                                    viewModel.initDiscovery()
+                                }
+                            )
+                        }
+                    }
+
                 }
                 SelectableLazyColumn(
                     modifier = Modifier.weight(1F).fillMaxWidth(),

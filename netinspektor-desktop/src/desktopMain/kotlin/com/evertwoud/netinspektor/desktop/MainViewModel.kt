@@ -25,7 +25,7 @@ class MainViewModel : ViewModel() {
     var alwaysOnTop by mutableStateOf(false)
     var session by mutableStateOf<SessionClient?>(null)
     var selection by mutableStateOf<NetInspektorEvent?>(null)
-    var formatStyle by mutableStateOf(FormatStyle.Pretty)
+    var formatStyle by mutableStateOf(FormatStyle.Structured)
     val linkedEvents = derivedStateOf {
         session?.data?.matchLinkedEvents(selection)
     }

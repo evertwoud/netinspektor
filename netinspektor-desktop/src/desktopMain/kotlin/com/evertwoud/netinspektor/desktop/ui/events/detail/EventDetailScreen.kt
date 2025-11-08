@@ -6,7 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,7 +19,9 @@ import com.evertwoud.netinspektor.core.event.NetInspektorEvent
 import com.evertwoud.netinspektor.desktop.MainViewModel
 import com.evertwoud.netinspektor.desktop.data.FormatStyle
 import com.evertwoud.netinspektor.desktop.ext.*
-import com.evertwoud.netinspektor.desktop.ui.component.ContentBlock
+import com.evertwoud.netinspektor.desktop.ui.component.ContentComponent
+import com.evertwoud.netinspektor.desktop.ui.component.KeyValueListComponent
+import com.evertwoud.netinspektor.desktop.ui.component.StructuredJsonComponent
 import com.evertwoud.netinspektor.desktop.util.AppControls
 import com.evertwoud.netinspektor.desktop.util.BodyFormatter
 import io.ktor.http.*
@@ -30,6 +33,7 @@ import org.jetbrains.jewel.ui.component.*
 import org.jetbrains.jewel.ui.component.styling.ScrollbarStyle
 import org.jetbrains.jewel.ui.component.styling.ScrollbarVisibility
 import org.jetbrains.jewel.ui.theme.colorPalette
+import org.jetbrains.jewel.ui.theme.textAreaStyle
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalJewelApi::class)
 @Composable
@@ -52,7 +56,9 @@ fun EventDetailScreen(
     }
     val bodyContent = remember(viewModel.formatStyle, event) {
         when (viewModel.formatStyle) {
+            FormatStyle.Structured,
             FormatStyle.Pretty -> BodyFormatter.prettyPrint(input = event.body)
+
             FormatStyle.Minified -> BodyFormatter.minified(input = event.body)
             FormatStyle.Original -> event.body
         }
@@ -145,9 +151,10 @@ fun EventDetailScreen(
                     text = "URL",
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                ContentBlock(
+                KeyValueListComponent(
                     modifier = Modifier.fillMaxWidth(),
-                    content = "${request.method} ${request.url}"
+                    content = mapOf(request.method to request.url),
+                    divider = " "
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -157,9 +164,9 @@ fun EventDetailScreen(
                 text = "Headers",
             )
             Spacer(modifier = Modifier.height(8.dp))
-            ContentBlock(
+            KeyValueListComponent(
                 modifier = Modifier.fillMaxWidth(),
-                content = event.prettyHeaders
+                content = event.headers
             )
             Spacer(modifier = Modifier.height(16.dp))
             Row(
@@ -174,11 +181,7 @@ fun EventDetailScreen(
                 )
                 Dropdown(
                     menuContent = {
-                        listOf(
-                            FormatStyle.Pretty,
-                            FormatStyle.Minified,
-                            FormatStyle.Original,
-                        ).forEach { style ->
+                        FormatStyle.entries.forEach { style ->
                             selectableItem(
                                 selected = viewModel.formatStyle == style,
                                 onClick = { viewModel.formatStyle = style }
@@ -193,10 +196,33 @@ fun EventDetailScreen(
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
-            ContentBlock(
-                modifier = Modifier.fillMaxWidth(),
-                content = bodyContent,
-            )
+            when (viewModel.formatStyle) {
+                FormatStyle.Structured -> StructuredJsonComponent(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = event.body.orEmpty(),
+                )
+
+                else -> ContentComponent(
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    when {
+                        !bodyContent.isNullOrEmpty() -> Text(
+                            modifier = Modifier.padding(12.dp),
+                            text = bodyContent,
+                            style = JewelTheme.editorTextStyle,
+                            color = JewelTheme.textAreaStyle.colors.content
+                        )
+
+                        else -> Text(
+                            modifier = Modifier.padding(12.dp),
+                            text = "No content",
+                            style = JewelTheme.editorTextStyle,
+                            color = JewelTheme.textAreaStyle.colors.contentDisabled
+                        )
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(32.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),

@@ -2,12 +2,12 @@
 
 package com.evertwoud.netinspektor.desktop
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
@@ -17,7 +17,6 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import com.evertwoud.netinspektor.desktop.ui.AppDestination
 import com.evertwoud.netinspektor.desktop.ui.events.EventOverviewScreen
@@ -118,7 +117,8 @@ fun main() = application {
                             TabStrip(
                                 modifier = Modifier.weight(1f),
                                 tabs = tabs,
-                                style = TabStyle.Editor.dark()
+                                style = TabStyle.Editor.dark(),
+                                interactionSource = remember { MutableInteractionSource() }
                             )
                             Spacer(Modifier.width(8.dp))
                             IconButton(
