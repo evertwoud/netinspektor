@@ -32,6 +32,8 @@ import org.jetbrains.jewel.intui.standalone.styling.default
 import org.jetbrains.jewel.ui.component.*
 import org.jetbrains.jewel.ui.component.styling.ScrollbarStyle
 import org.jetbrains.jewel.ui.component.styling.ScrollbarVisibility
+import org.jetbrains.jewel.ui.icons.AllIconsKeys
+import org.jetbrains.jewel.ui.painter.hints.Size
 import org.jetbrains.jewel.ui.theme.colorPalette
 import org.jetbrains.jewel.ui.theme.textAreaStyle
 
@@ -186,12 +188,27 @@ fun EventDetailScreen(
                                 selected = viewModel.formatStyle == style,
                                 onClick = { viewModel.formatStyle = style }
                             ) {
-                                Text(style.label)
+                                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    Icon(
+                                        key = style.icon,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp),
+                                    )
+                                    Text(style.label)
+                                }
                             }
                         }
                     },
                     content = {
-                        Text(viewModel.formatStyle.label)
+                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Icon(
+                                key = viewModel.formatStyle.icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                            )
+                            Text(viewModel.formatStyle.label)
+                        }
+
                     }
                 )
             }
