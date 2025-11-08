@@ -147,6 +147,19 @@ fun ClientComponent(
                     )
                 }
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    OutlinedButton(
+                        modifier = Modifier.weight(1F),
+                        content = { Text("HTML", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                        onClick = { makeRequest("https://example.com") },
+                    )
+
+                    OutlinedButton(
+                        modifier = Modifier.weight(1F),
+                        content = { Text("Image", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                        onClick = { makeRequest("https://cdn.britannica.com/07/183407-050-C35648B5/Chicken.jpg") },
+                    )
+                }
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     TextButton(
                         modifier = Modifier.weight(1F),
                         content = { Text("Clear history") },

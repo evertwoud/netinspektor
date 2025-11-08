@@ -84,7 +84,7 @@ fun StructuredJsonComponent(
                         )
 
                         else -> Text(
-                            text = "No content",
+                            text = "Not supported",
                             style = JewelTheme.editorTextStyle,
                             color = JewelTheme.textAreaStyle.colors.contentDisabled
                         )
