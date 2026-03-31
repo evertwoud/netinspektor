@@ -57,11 +57,26 @@ fun StructuredJsonComponent(
     val expansionStates = remember(value) {
         mutableStateMapOf<String, Boolean>().apply { put("root", FormatConstants.EXPANDED_BY_DEFAULT) }
     }
+    val collapsiblePaths = remember(structure) {
+        structure.collectCollapsiblePaths(currentPath = "root")
+    }
 
     // Helper function to update the map, wrapped in a lambda to be passed down
     val onToggle: (String) -> Unit = remember(expansionStates) {
         { path ->
             expansionStates[path] = !(expansionStates[path] ?: FormatConstants.EXPANDED_BY_DEFAULT)
+        }
+    }
+    val onExpandAll = remember(expansionStates, collapsiblePaths) {
+        {
+            expansionStates["root"] = true
+            collapsiblePaths.forEach { path -> expansionStates[path] = true }
+        }
+    }
+    val onCollapseAll = remember(expansionStates, collapsiblePaths) {
+        {
+            expansionStates["root"] = false
+            collapsiblePaths.forEach { path -> expansionStates[path] = false }
         }
     }
 
@@ -94,16 +109,35 @@ fun StructuredJsonComponent(
                 }
             }
             if (value.isNotBlank()) {
-                IconActionButton(
+                Row(
                     modifier = Modifier.align(Alignment.TopEnd),
-                    contentDescription = "Copy to clipboard",
-                    key = AllIconsKeys.Actions.Copy,
-                    onClick = { clipboardManager.setText(annotatedString = AnnotatedString(text = value)) },
-                    tooltipModifier = Modifier.align(Alignment.TopEnd),
-                    tooltip = { Text("Copy to clipboard") },
-                    tooltipStyle = TooltipStyle.light(),
-                    tooltipPlacement = FixedCursorPoint(offset = DpOffset(0.dp, 4.dp))
-                )
+                ) {
+                    IconActionButton(
+                        contentDescription = "Expand all",
+                        key = AllIconsKeys.Actions.Expandall,
+                        onClick = onExpandAll,
+                        tooltip = { Text("Expand all") },
+                        tooltipStyle = TooltipStyle.light(),
+                        tooltipPlacement = FixedCursorPoint(offset = DpOffset(0.dp, 4.dp))
+                    )
+                    IconActionButton(
+                        contentDescription = "Collapse all",
+                        key = AllIconsKeys.Actions.Collapseall,
+                        onClick = onCollapseAll,
+                        tooltip = { Text("Collapse all") },
+                        tooltipStyle = TooltipStyle.light(),
+                        tooltipPlacement = FixedCursorPoint(offset = DpOffset(0.dp, 4.dp))
+                    )
+                    IconActionButton(
+                        contentDescription = "Copy to clipboard",
+                        key = AllIconsKeys.Actions.Copy,
+                        onClick = { clipboardManager.setText(annotatedString = AnnotatedString(text = value)) },
+                        tooltip = { Text("Copy to clipboard") },
+                        tooltipStyle = TooltipStyle.light(),
+                        tooltipPlacement = FixedCursorPoint(offset = DpOffset(0.dp, 4.dp))
+                    )
+                }
+
             }
         }
     }
@@ -158,7 +192,7 @@ private fun BuildJsonContent(
 
     when (node) {
         is JsonArray -> {
-            val isCollapsible = node.isNotEmpty()
+            val isCollapsible = remember(node) { node.isNotEmpty() }
             Column(
                 modifier = modifier,
                 verticalArrangement = Arrangement.spacedBy(6.dp)
@@ -195,7 +229,7 @@ private fun BuildJsonContent(
         }
 
         is JsonObject -> {
-            val isCollapsible = node.isNotEmpty()
+            val isCollapsible = remember(node) { node.isNotEmpty() }
             Column(
                 modifier = modifier,
                 verticalArrangement = Arrangement.spacedBy(6.dp)
@@ -241,3 +275,34 @@ private fun BuildJsonContent(
         else -> Unit
     }
 }
+
+private fun JsonElement?.collectCollapsiblePaths(currentPath: String): Set<String> {
+    if (this == null) return emptySet()
+
+    val paths = mutableSetOf<String>()
+
+    when (this) {
+        is JsonArray -> {
+            if (isNotEmpty()) {
+                paths += currentPath
+                forEachIndexed { index, child ->
+                    paths += child.collectCollapsiblePaths(currentPath = "$currentPath/$index")
+                }
+            }
+        }
+
+        is JsonObject -> {
+            if (isNotEmpty()) {
+                paths += currentPath
+                forEach { (key, child) ->
+                    paths += child.collectCollapsiblePaths(currentPath = "$currentPath/$key")
+                }
+            }
+        }
+
+        else -> Unit
+    }
+
+    return paths
+}
+
