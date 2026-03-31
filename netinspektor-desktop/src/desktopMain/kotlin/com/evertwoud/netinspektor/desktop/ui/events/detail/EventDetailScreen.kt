@@ -14,7 +14,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.evertwoud.netinspektor.core.event.NetInspektorEvent
 import com.evertwoud.netinspektor.desktop.MainViewModel
@@ -180,18 +182,33 @@ fun EventDetailScreen(
                 content = event.headers.toSortedMap()
             )
             Spacer(modifier = Modifier.height(16.dp))
+
+            @Composable
+            fun BodyTitle(modifier: Modifier = Modifier) {
+                Text(
+                    modifier = modifier,
+                    text = buildAnnotatedString {
+                        withStyle(SpanStyle(color = JewelTheme.contentColor)) {
+                            append("Body")
+                        }
+                        contentType?.withoutParameters()?.let { type ->
+                            withStyle(SpanStyle(color = JewelTheme.colorPalette.gray(8))) {
+                                append(" ($type)")
+                            }
+                        }
+                    }
+                )
+            }
             when {
                 event.body == null -> Unit
                 contentType?.match(ContentType.Application.Json) == true -> JsonBodyComponent(
                     viewModel = viewModel,
+                    title = { BodyTitle(modifier = Modifier.weight(1F)) },
                     body = event.body
                 )
 
                 unsupportedContentTypes.any { type -> contentType?.match(type) == true } -> {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = "Body",
-                    )
+                    BodyTitle(modifier = Modifier.fillMaxWidth())
                     Spacer(modifier = Modifier.height(8.dp))
                     ContentComponent {
                         Text(
@@ -204,10 +221,7 @@ fun EventDetailScreen(
                 }
 
                 else -> {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = "Body",
-                    )
+                    BodyTitle(modifier = Modifier.fillMaxWidth())
                     Spacer(modifier = Modifier.height(8.dp))
                     ContentComponent {
                         Text(

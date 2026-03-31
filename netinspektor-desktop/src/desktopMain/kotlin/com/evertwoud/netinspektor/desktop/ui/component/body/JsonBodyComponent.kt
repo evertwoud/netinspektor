@@ -21,6 +21,7 @@ import org.jetbrains.jewel.ui.theme.textAreaStyle
 @Composable
 fun JsonBodyComponent(
     viewModel: MainViewModel,
+    title: @Composable RowScope.() -> Unit,
     body: NetInspektorEvent.Body?
 ) {
     val formatStyle = viewModel.settings.formatStyle.collectAsState(FormatStyle.Original).value
@@ -42,10 +43,7 @@ fun JsonBodyComponent(
         verticalAlignment = Alignment.CenterVertically
 
     ) {
-        Text(
-            modifier = Modifier.weight(1F),
-            text = "Body",
-        )
+        title()
         Dropdown(
             menuContent = {
                 FormatStyle.entries.forEach { style ->
