@@ -18,6 +18,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import coil3.ImageLoader
+import coil3.compose.setSingletonImageLoaderFactory
+import coil3.request.crossfade
 import com.evertwoud.netinspektor.desktop.ui.AppDestination
 import com.evertwoud.netinspektor.desktop.ui.events.EventOverviewScreen
 import com.evertwoud.netinspektor.desktop.ui.pairing.PairingWindow
@@ -80,6 +83,12 @@ fun main() = application {
                     )
                 }
             }
+        }
+
+        setSingletonImageLoaderFactory { context ->
+            ImageLoader.Builder(context)
+                .crossfade(false)
+                .build()
         }
 
         IntUiTheme(

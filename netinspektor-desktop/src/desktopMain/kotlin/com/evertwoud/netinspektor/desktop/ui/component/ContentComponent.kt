@@ -19,6 +19,7 @@ import org.jetbrains.jewel.ui.theme.textAreaStyle
 @Composable
 fun ContentComponent(
     modifier: Modifier = Modifier,
+    scrollable: Boolean = true,
     content: @Composable BoxScope.() -> Unit
 ) {
     Box(
@@ -32,7 +33,7 @@ fun ContentComponent(
                 color = JewelTheme.textAreaStyle.colors.border,
                 shape = RoundedCornerShape(JewelTheme.textAreaStyle.metrics.cornerSize),
             )
-            .horizontalScroll(rememberScrollState())
+            .let { if (scrollable) it.horizontalScroll(rememberScrollState()) else it }
             .padding(12.dp),
         content = content
     )

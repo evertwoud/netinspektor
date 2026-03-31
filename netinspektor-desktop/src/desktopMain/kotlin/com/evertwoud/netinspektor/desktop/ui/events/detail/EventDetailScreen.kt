@@ -19,6 +19,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.evertwoud.netinspektor.core.event.NetInspektorEvent
 import com.evertwoud.netinspektor.desktop.MainViewModel
 import com.evertwoud.netinspektor.desktop.ext.*
@@ -50,15 +51,6 @@ fun EventDetailScreen(
 ) {
     val clipboardManager = LocalClipboardManager.current
     val scrollState = remember(event) { ScrollState(0) }
-    val unsupportedContentTypes = remember {
-        listOf(
-            ContentType.Image.Any,
-            ContentType.Video.Any,
-            ContentType.Audio.Any,
-            ContentType.Font.Any,
-            ContentType.MultiPart.Any,
-        )
-    }
     val scrollbarStyle = remember {
         val base = ScrollbarStyle.dark()
         ScrollbarStyle(
@@ -211,7 +203,24 @@ fun EventDetailScreen(
                     body = event.body
                 )
 
-                unsupportedContentTypes.any { type -> contentType?.match(type) == true } -> {
+                contentType?.match(ContentType.Image.Any) == true -> {
+                    BodyTitle(modifier = Modifier.fillMaxWidth())
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ContentComponent(scrollable = false) {
+                        AsyncImage(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentDescription = null,
+                            model = event.body?.data
+                        )
+                    }
+                }
+
+                listOf(
+                    ContentType.Video.Any,
+                    ContentType.Audio.Any,
+                    ContentType.Font.Any,
+                    ContentType.MultiPart.Any,
+                ).any { type -> contentType?.match(type) == true } -> {
                     BodyTitle(modifier = Modifier.fillMaxWidth())
                     Spacer(modifier = Modifier.height(8.dp))
                     ContentComponent {
@@ -241,7 +250,7 @@ fun EventDetailScreen(
                         }
                         if (!content.isNullOrEmpty()) {
                             IconActionButton(
-                                tooltipModifier =  Modifier.align(Alignment.TopEnd),
+                                tooltipModifier = Modifier.align(Alignment.TopEnd),
                                 contentDescription = "Copy to clipboard",
                                 key = AllIconsKeys.Actions.Copy,
                                 onClick = { clipboardManager.setText(annotatedString = AnnotatedString(text = content)) },
@@ -288,7 +297,14 @@ fun EventDetailScreen(
                                     append("\n\n📋 Headers:\n")
                                     append(headers)
                                 }
-                                if (!unsupportedContentTypes.any { type -> contentType?.match(type) == true }) {
+                                if (!listOf(
+                                        ContentType.Image.Any,
+                                        ContentType.Video.Any,
+                                        ContentType.Audio.Any,
+                                        ContentType.Font.Any,
+                                        ContentType.MultiPart.Any,
+                                    ).any { type -> contentType?.match(type) == true }
+                                ) {
                                     content?.let { content ->
                                         append("\n\n📥 Body:\n")
                                         append(text = content)

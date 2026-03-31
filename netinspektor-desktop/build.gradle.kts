@@ -45,6 +45,8 @@ kotlin {
             implementation(libs.adam)
             implementation(libs.settings)
             implementation(libs.settings.coroutines)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor)
         }
         desktopMain.dependencies {
             implementation(libs.jewel)
