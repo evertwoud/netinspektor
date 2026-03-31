@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class NetInspektorMetadata(
     val uuid: String,
     val name: String,
-    val platform: String,
+    val platform: String
 )

@@ -30,7 +30,9 @@ import com.evertwoud.netinspektor.client.session.NetInspektorSession
 import com.evertwoud.netinspektor.core.event.NetInspektorEvent
 import io.ktor.client.HttpClient
 import io.ktor.client.request.request
+import io.ktor.client.statement.bodyAsBytes
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.contentType
 import io.ktor.util.toMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -76,7 +78,10 @@ fun ClientComponent(
                         .toMap(),
                     statusCode = response.status.value,
                     statusDescription = response.status.description,
-                    body = response.bodyAsText()
+                    body = NetInspektorEvent.Body(
+                        contentType = response.contentType()?.contentType,
+                        data = response.bodyAsBytes()
+                    )
                 )
             )
             responseCount++
@@ -150,7 +155,7 @@ fun ClientComponent(
                     OutlinedButton(
                         modifier = Modifier.weight(1F),
                         content = { Text("HTML", maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                        onClick = { makeRequest("https://example.com") },
+                        onClick = { makeRequest("https://evertwoud.com") },
                     )
 
                     OutlinedButton(

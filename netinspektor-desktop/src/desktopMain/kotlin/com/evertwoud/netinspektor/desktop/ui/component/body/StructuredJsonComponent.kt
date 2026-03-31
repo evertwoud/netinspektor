@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalFoundationApi::class, ExperimentalJewelApi::class)
 
-package com.evertwoud.netinspektor.desktop.ui.component
+package com.evertwoud.netinspektor.desktop.ui.component.body
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -22,6 +22,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import com.evertwoud.netinspektor.desktop.ui.component.ContentComponent
+import com.evertwoud.netinspektor.desktop.ui.component.KeyValueComponent
 import com.evertwoud.netinspektor.desktop.util.FormatConstants
 import kotlinx.serialization.json.*
 import org.jetbrains.jewel.foundation.ExperimentalJewelApi

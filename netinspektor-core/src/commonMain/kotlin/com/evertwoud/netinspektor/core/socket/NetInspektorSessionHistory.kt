@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class NetInspektorSessionHistory(
     val requests: List<NetInspektorEvent.Request>,
-    val responses: List<NetInspektorEvent.Response>,
+    val responses: List<NetInspektorEvent.Response>
 )

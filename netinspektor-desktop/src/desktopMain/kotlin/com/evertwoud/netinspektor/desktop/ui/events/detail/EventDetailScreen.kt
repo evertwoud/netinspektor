@@ -4,7 +4,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.runtime.Composable
@@ -15,8 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.evertwoud.netinspektor.core.event.NetInspektorEvent
 import com.evertwoud.netinspektor.desktop.MainViewModel
@@ -24,21 +21,16 @@ import com.evertwoud.netinspektor.desktop.data.FormatStyle
 import com.evertwoud.netinspektor.desktop.ext.*
 import com.evertwoud.netinspektor.desktop.ui.component.ContentComponent
 import com.evertwoud.netinspektor.desktop.ui.component.KeyValueListComponent
-import com.evertwoud.netinspektor.desktop.ui.component.StructuredJsonComponent
+import com.evertwoud.netinspektor.desktop.ui.component.body.JsonBodyComponent
 import com.evertwoud.netinspektor.desktop.util.AppControls
-import com.evertwoud.netinspektor.desktop.util.BodyFormatter
 import io.ktor.http.*
 import org.jetbrains.jewel.foundation.ExperimentalJewelApi
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.intui.standalone.styling.dark
 import org.jetbrains.jewel.intui.standalone.styling.default
-import org.jetbrains.jewel.intui.standalone.styling.light
 import org.jetbrains.jewel.ui.component.*
 import org.jetbrains.jewel.ui.component.styling.ScrollbarStyle
 import org.jetbrains.jewel.ui.component.styling.ScrollbarVisibility
-import org.jetbrains.jewel.ui.component.styling.TooltipStyle
-import org.jetbrains.jewel.ui.icons.AllIconsKeys
-import org.jetbrains.jewel.ui.painter.hints.Size
 import org.jetbrains.jewel.ui.theme.colorPalette
 import org.jetbrains.jewel.ui.theme.textAreaStyle
 
@@ -52,7 +44,6 @@ fun EventDetailScreen(
 ) {
     val clipboardManager = LocalClipboardManager.current
     val scrollState = remember(event) { ScrollState(0) }
-    val formatStyle = viewModel.settings.formatStyle.collectAsState(FormatStyle.Original).value
     val scrollbarStyle = remember {
         val base = ScrollbarStyle.dark()
         ScrollbarStyle(
@@ -62,15 +53,7 @@ fun EventDetailScreen(
             scrollbarVisibility = ScrollbarVisibility.WhenScrolling.default(),
         )
     }
-    val bodyContent = remember(formatStyle, event) {
-        when (formatStyle) {
-            FormatStyle.Structured,
-            FormatStyle.Pretty -> BodyFormatter.prettyPrint(input = event.body)
 
-            FormatStyle.Minified -> BodyFormatter.minified(input = event.body)
-            FormatStyle.Original -> event.body
-        }
-    }
 
     VerticallyScrollableContainer(
         scrollState = scrollState,
@@ -178,84 +161,19 @@ fun EventDetailScreen(
                 content = event.headers
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-
-            ) {
-                Text(
-                    modifier = Modifier.weight(1F),
-                    text = "Body",
-                )
-                Dropdown(
-                    menuContent = {
-                        FormatStyle.entries.forEach { style ->
-                            selectableItem(
-                                selected = formatStyle == style,
-                                onClick = { viewModel.settings.setFormatStyle(style) }
-                            ) {
-                                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                    Icon(
-                                        key = style.icon,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(16.dp),
-                                    )
-                                    Text(style.label)
-                                }
-                            }
-                        }
-                    },
-                    content = {
-                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Icon(
-                                key = formatStyle.icon,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp),
-                            )
-                            Text(formatStyle.label)
-                        }
-
-                    }
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            when (formatStyle) {
-                FormatStyle.Structured -> StructuredJsonComponent(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = bodyContent.orEmpty(),
-                )
-
-                else -> Box {
-                    ContentComponent(
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        when {
-                            !bodyContent.isNullOrEmpty() -> Text(
-                                modifier = Modifier,
-                                text = bodyContent,
-                                style = JewelTheme.editorTextStyle,
-                                color = JewelTheme.textAreaStyle.colors.content
-                            )
-
-                            else -> Text(
-                                modifier = Modifier,
-                                text = "No content",
-                                style = JewelTheme.editorTextStyle,
-                                color = JewelTheme.textAreaStyle.colors.contentDisabled
-                            )
-                        }
-                    }
-                    if (!bodyContent.isNullOrBlank()) {
-                        IconActionButton(
-                            modifier = Modifier.align(Alignment.TopEnd),
-                            contentDescription = "Copy to clipboard",
-                            key = AllIconsKeys.Actions.Copy,
-                            onClick = { clipboardManager.setText(annotatedString = AnnotatedString(text = bodyContent)) },
-                            tooltipModifier = Modifier.align(Alignment.TopEnd),
-                            tooltip = { Text("Copy to clipboard") },
-                            tooltipStyle = TooltipStyle.light(),
-                            tooltipPlacement = FixedCursorPoint(offset = DpOffset(0.dp, 4.dp))
+            // Determine body
+            event.body?.contentType.orEmpty().let { contentType ->
+                when {
+                    ContentType.Application.Json.match(contentType) -> JsonBodyComponent(
+                        viewModel = viewModel,
+                        body = event.body
+                    )
+                    else -> ContentComponent {
+                        Text(
+                            modifier = Modifier,
+                            text = "No content",
+                            style = JewelTheme.editorTextStyle,
+                            color = JewelTheme.textAreaStyle.colors.contentDisabled
                         )
                     }
                 }
@@ -277,48 +195,48 @@ fun EventDetailScreen(
                         }
                     )
                 }
-                OutlinedButton(
-                    content = { Text("Copy to clipboard") },
-                    onClick = {
-                        clipboardManager.setText(
-                            when (event) {
-                                is NetInspektorEvent.Request -> buildAnnotatedString {
-                                    append("🔗 Endpoint:\n")
-                                    append(event.method)
-                                    append(" ")
-                                    append(event.url)
-                                    event.getOrMatchResponse(viewModel.session)?.let { match ->
-                                        append("\n\n⚙️ Status:\n")
-                                        append(match.statusCode.toString())
-                                    }
-                                    append("\n\n📋 Headers:\n")
-                                    append(event.prettyHeaders)
-                                    bodyContent?.takeIf { it.isNotEmpty() }?.let {
-                                        append("\n\n📥 Body:\n")
-                                        append(text = bodyContent)
-                                    }
-                                }
-
-                                is NetInspektorEvent.Response -> buildAnnotatedString {
-                                    event.getOrMatchRequest(viewModel.session)?.let { match ->
-                                        append("🔗 Endpoint:\n")
-                                        append(match.method)
-                                        append(" ")
-                                        append(match.url)
-                                    }
-                                    append("\n\n⚙️ Status:\n")
-                                    append(event.statusCode.toString())
-                                    append("\n\n📋 Headers:\n")
-                                    append(event.prettyHeaders)
-                                    bodyContent?.takeIf { it.isNotEmpty() }?.let {
-                                        append("\n\n📥 Body:\n")
-                                        append(text = bodyContent)
-                                    }
-                                }
-                            }
-                        )
-                    }
-                )
+//                OutlinedButton(
+//                    content = { Text("Copy to clipboard") },
+//                    onClick = {
+//                        clipboardManager.setText(
+//                            when (event) {
+//                                is NetInspektorEvent.Request -> buildAnnotatedString {
+//                                    append("🔗 Endpoint:\n")
+//                                    append(event.method)
+//                                    append(" ")
+//                                    append(event.url)
+//                                    event.getOrMatchResponse(viewModel.session)?.let { match ->
+//                                        append("\n\n⚙️ Status:\n")
+//                                        append(match.statusCode.toString())
+//                                    }
+//                                    append("\n\n📋 Headers:\n")
+//                                    append(event.prettyHeaders)
+//                                    bodyContent?.takeIf { it.isNotEmpty() }?.let {
+//                                        append("\n\n📥 Body:\n")
+//                                        append(text = bodyContent)
+//                                    }
+//                                }
+//
+//                                is NetInspektorEvent.Response -> buildAnnotatedString {
+//                                    event.getOrMatchRequest(viewModel.session)?.let { match ->
+//                                        append("🔗 Endpoint:\n")
+//                                        append(match.method)
+//                                        append(" ")
+//                                        append(match.url)
+//                                    }
+//                                    append("\n\n⚙️ Status:\n")
+//                                    append(event.statusCode.toString())
+//                                    append("\n\n📋 Headers:\n")
+//                                    append(event.prettyHeaders)
+//                                    bodyContent?.takeIf { it.isNotEmpty() }?.let {
+//                                        append("\n\n📥 Body:\n")
+//                                        append(text = bodyContent)
+//                                    }
+//                                }
+//                            }
+//                        )
+//                    }
+//                )
             }
         }
     }
