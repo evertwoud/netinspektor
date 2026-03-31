@@ -17,6 +17,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.evertwoud.netinspektor.core.event.NetInspektorEvent
 import com.evertwoud.netinspektor.desktop.MainViewModel
@@ -30,9 +31,12 @@ import org.jetbrains.jewel.foundation.ExperimentalJewelApi
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.intui.standalone.styling.dark
 import org.jetbrains.jewel.intui.standalone.styling.default
+import org.jetbrains.jewel.intui.standalone.styling.light
 import org.jetbrains.jewel.ui.component.*
 import org.jetbrains.jewel.ui.component.styling.ScrollbarStyle
 import org.jetbrains.jewel.ui.component.styling.ScrollbarVisibility
+import org.jetbrains.jewel.ui.component.styling.TooltipStyle
+import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.theme.colorPalette
 import org.jetbrains.jewel.ui.theme.textAreaStyle
 
@@ -223,21 +227,34 @@ fun EventDetailScreen(
                 else -> {
                     BodyTitle(modifier = Modifier.fillMaxWidth())
                     Spacer(modifier = Modifier.height(8.dp))
-                    ContentComponent {
-                        Text(
-                            modifier = Modifier,
-                            text = content ?: "No content",
-                            style = JewelTheme.editorTextStyle,
-                            color = when (content.isNullOrEmpty()) {
-                                true -> JewelTheme.textAreaStyle.colors.contentDisabled
-                                else -> Color.Unspecified
-                            }
-                        )
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        ContentComponent {
+                            Text(
+                                modifier = Modifier,
+                                text = content ?: "No content",
+                                style = JewelTheme.editorTextStyle,
+                                color = when (content.isNullOrEmpty()) {
+                                    true -> JewelTheme.textAreaStyle.colors.contentDisabled
+                                    else -> Color.Unspecified
+                                }
+                            )
+                        }
+                        if (!content.isNullOrEmpty()) {
+                            IconActionButton(
+                                tooltipModifier =  Modifier.align(Alignment.TopEnd),
+                                contentDescription = "Copy to clipboard",
+                                key = AllIconsKeys.Actions.Copy,
+                                onClick = { clipboardManager.setText(annotatedString = AnnotatedString(text = content)) },
+                                tooltip = { Text("Copy to clipboard") },
+                                tooltipStyle = TooltipStyle.light(),
+                                tooltipPlacement = FixedCursorPoint(offset = DpOffset(0.dp, 4.dp))
+                            )
+                        }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
