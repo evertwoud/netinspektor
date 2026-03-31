@@ -7,17 +7,17 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import com.evertwoud.netinspektor.core.event.NetInspektorEvent
 import com.evertwoud.netinspektor.desktop.MainViewModel
-import com.evertwoud.netinspektor.desktop.data.FormatStyle
 import com.evertwoud.netinspektor.desktop.ext.*
 import com.evertwoud.netinspektor.desktop.ui.component.ContentComponent
 import com.evertwoud.netinspektor.desktop.ui.component.KeyValueListComponent
@@ -54,6 +54,8 @@ fun EventDetailScreen(
         )
     }
 
+    val contentType = remember(event) { event.body?.contentType?.let { ContentType.parse(it) } }
+    val content = remember(event) { event.body?.data?.decodeToString() }
 
     VerticallyScrollableContainer(
         scrollState = scrollState,
@@ -161,21 +163,29 @@ fun EventDetailScreen(
                 content = event.headers
             )
             Spacer(modifier = Modifier.height(16.dp))
+
             // Determine body
-            event.body?.contentType.orEmpty().let { contentType ->
-                when {
-                    ContentType.Application.Json.match(contentType) -> JsonBodyComponent(
-                        viewModel = viewModel,
-                        body = event.body
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = "Content type: ${contentType ?: "unknown"}"
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            when {
+                contentType?.match(ContentType.Application.Json) == true -> JsonBodyComponent(
+                    viewModel = viewModel,
+                    body = event.body
+                )
+
+                else -> ContentComponent {
+                    Text(
+                        modifier = Modifier,
+                        text = content ?: "No content",
+                        style = JewelTheme.editorTextStyle,
+                        color = when (content.isNullOrEmpty()) {
+                            true -> JewelTheme.textAreaStyle.colors.contentDisabled
+                            else -> Color.Unspecified
+                        }
                     )
-                    else -> ContentComponent {
-                        Text(
-                            modifier = Modifier,
-                            text = "No content",
-                            style = JewelTheme.editorTextStyle,
-                            color = JewelTheme.textAreaStyle.colors.contentDisabled
-                        )
-                    }
                 }
             }
 
@@ -195,48 +205,48 @@ fun EventDetailScreen(
                         }
                     )
                 }
-//                OutlinedButton(
-//                    content = { Text("Copy to clipboard") },
-//                    onClick = {
-//                        clipboardManager.setText(
-//                            when (event) {
-//                                is NetInspektorEvent.Request -> buildAnnotatedString {
-//                                    append("🔗 Endpoint:\n")
-//                                    append(event.method)
-//                                    append(" ")
-//                                    append(event.url)
-//                                    event.getOrMatchResponse(viewModel.session)?.let { match ->
-//                                        append("\n\n⚙️ Status:\n")
-//                                        append(match.statusCode.toString())
-//                                    }
-//                                    append("\n\n📋 Headers:\n")
-//                                    append(event.prettyHeaders)
-//                                    bodyContent?.takeIf { it.isNotEmpty() }?.let {
-//                                        append("\n\n📥 Body:\n")
-//                                        append(text = bodyContent)
-//                                    }
-//                                }
-//
-//                                is NetInspektorEvent.Response -> buildAnnotatedString {
-//                                    event.getOrMatchRequest(viewModel.session)?.let { match ->
-//                                        append("🔗 Endpoint:\n")
-//                                        append(match.method)
-//                                        append(" ")
-//                                        append(match.url)
-//                                    }
-//                                    append("\n\n⚙️ Status:\n")
-//                                    append(event.statusCode.toString())
-//                                    append("\n\n📋 Headers:\n")
-//                                    append(event.prettyHeaders)
-//                                    bodyContent?.takeIf { it.isNotEmpty() }?.let {
-//                                        append("\n\n📥 Body:\n")
-//                                        append(text = bodyContent)
-//                                    }
-//                                }
-//                            }
-//                        )
-//                    }
-//                )
+                OutlinedButton(
+                    content = { Text("Copy to clipboard") },
+                    onClick = {
+                        clipboardManager.setText(
+                            when (event) {
+                                is NetInspektorEvent.Request -> buildAnnotatedString {
+                                    append("🔗 Endpoint:\n")
+                                    append(event.method)
+                                    append(" ")
+                                    append(event.url)
+                                    event.getOrMatchResponse(viewModel.session)?.let { match ->
+                                        append("\n\n⚙️ Status:\n")
+                                        append(match.statusCode.toString())
+                                    }
+                                    append("\n\n📋 Headers:\n")
+                                    append(event.prettyHeaders)
+                                    event.body?.data?.decodeToString()?.takeIf { it.isNotEmpty() }?.let { content ->
+                                        append("\n\n📥 Body:\n")
+                                        append(text = content)
+                                    }
+                                }
+
+                                is NetInspektorEvent.Response -> buildAnnotatedString {
+                                    event.getOrMatchRequest(viewModel.session)?.let { match ->
+                                        append("🔗 Endpoint:\n")
+                                        append(match.method)
+                                        append(" ")
+                                        append(match.url)
+                                    }
+                                    append("\n\n⚙️ Status:\n")
+                                    append(event.statusCode.toString())
+                                    append("\n\n📋 Headers:\n")
+                                    append(event.prettyHeaders)
+                                    event.body?.data?.decodeToString()?.takeIf { it.isNotEmpty() }?.let { content ->
+                                        append("\n\n📥 Body:\n")
+                                        append(text = content)
+                                    }
+                                }
+                            }
+                        )
+                    }
+                )
             }
         }
     }

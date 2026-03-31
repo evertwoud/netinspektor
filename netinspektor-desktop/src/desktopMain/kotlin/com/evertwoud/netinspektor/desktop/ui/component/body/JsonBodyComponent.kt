@@ -1,11 +1,6 @@
 package com.evertwoud.netinspektor.desktop.ui.component.body
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
@@ -16,6 +11,7 @@ import com.evertwoud.netinspektor.core.event.NetInspektorEvent
 import com.evertwoud.netinspektor.desktop.MainViewModel
 import com.evertwoud.netinspektor.desktop.data.FormatStyle
 import com.evertwoud.netinspektor.desktop.ui.component.ContentComponent
+import com.evertwoud.netinspektor.desktop.util.JsonBodyFormatter
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.Dropdown
 import org.jetbrains.jewel.ui.component.Icon
@@ -28,7 +24,17 @@ fun JsonBodyComponent(
     body: NetInspektorEvent.Body?
 ) {
     val formatStyle = viewModel.settings.formatStyle.collectAsState(FormatStyle.Original).value
-    val bodyContent = remember { body?.data?.contentToString().orEmpty() }
+    val bodyContent = remember(formatStyle) {
+        val content = body?.data?.decodeToString()
+        when (formatStyle) {
+            FormatStyle.Structured,
+            FormatStyle.Minified -> JsonBodyFormatter.minified(content)
+
+            FormatStyle.Pretty -> JsonBodyFormatter.prettyPrint(content)
+
+            else -> content
+        }.orEmpty()
+    }
 
     Row(
         modifier = Modifier.fillMaxWidth(),
