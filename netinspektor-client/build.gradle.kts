@@ -12,6 +12,7 @@ group = "com.evertwoud.netinspektor"
 version = "1.0.1"
 
 mavenPublishing {
+    publishToMavenCentral()
     signAllPublications()
     coordinates(group.toString(), "netinspektor-client", version.toString())
     pom {
