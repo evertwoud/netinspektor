@@ -54,8 +54,16 @@ fun EventDetailScreen(
         )
     }
 
-    val contentType = remember(event) { event.body?.contentType?.let { ContentType.parse(it) } }
-    val content = remember(event) { event.body?.data?.decodeToString() }
+    val contentType = remember(event) {
+        event.body?.contentType?.let {
+            try {
+                ContentType.parse(it)
+            } catch (_: BadContentTypeFormatException) {
+                null
+            }
+        }
+    }
+    val content = remember(event) { event.body?.data?.decodeToString()?.takeIf { it.isNotEmpty() } }
 
     VerticallyScrollableContainer(
         scrollState = scrollState,
@@ -163,29 +171,47 @@ fun EventDetailScreen(
                 content = event.headers
             )
             Spacer(modifier = Modifier.height(16.dp))
-
-            // Determine body
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = "Content type: ${contentType ?: "unknown"}"
-            )
-            Spacer(modifier = Modifier.height(8.dp))
             when {
+                event.body == null -> Unit
+
                 contentType?.match(ContentType.Application.Json) == true -> JsonBodyComponent(
                     viewModel = viewModel,
                     body = event.body
                 )
 
-                else -> ContentComponent {
+                contentType?.match(ContentType.Image.Any) == true -> {
                     Text(
-                        modifier = Modifier,
-                        text = content ?: "No content",
-                        style = JewelTheme.editorTextStyle,
-                        color = when (content.isNullOrEmpty()) {
-                            true -> JewelTheme.textAreaStyle.colors.contentDisabled
-                            else -> Color.Unspecified
-                        }
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "Body",
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ContentComponent {
+                        Text(
+                            modifier = Modifier,
+                            text = "Images not supported",
+                            style = JewelTheme.editorTextStyle,
+                            color = JewelTheme.textAreaStyle.colors.contentDisabled
+                        )
+                    }
+                }
+
+                else -> {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "Body",
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ContentComponent {
+                        Text(
+                            modifier = Modifier,
+                            text = content ?: "No content",
+                            style = JewelTheme.editorTextStyle,
+                            color = when (content.isNullOrEmpty()) {
+                                true -> JewelTheme.textAreaStyle.colors.contentDisabled
+                                else -> Color.Unspecified
+                            }
+                        )
+                    }
                 }
             }
 
