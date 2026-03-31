@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -206,10 +207,14 @@ fun EventDetailScreen(
                 contentType?.match(ContentType.Image.Any) == true -> {
                     BodyTitle(modifier = Modifier.fillMaxWidth())
                     Spacer(modifier = Modifier.height(8.dp))
-                    ContentComponent(scrollable = false) {
+                    ContentComponent(
+                        modifier = Modifier.fillMaxWidth(),
+                        scrollable = false
+                    ) {
                         AsyncImage(
                             modifier = Modifier.fillMaxWidth(),
                             contentDescription = null,
+                            contentScale = ContentScale.FillWidth,
                             model = event.body?.data
                         )
                     }
