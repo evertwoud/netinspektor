@@ -44,6 +44,15 @@ fun EventDetailScreen(
 ) {
     val clipboardManager = LocalClipboardManager.current
     val scrollState = remember(event) { ScrollState(0) }
+    val unsupportedContentTypes = remember {
+        listOf(
+            ContentType.Image.Any,
+            ContentType.Video.Any,
+            ContentType.Audio.Any,
+            ContentType.Font.Any,
+            ContentType.MultiPart.Any,
+        )
+    }
     val scrollbarStyle = remember {
         val base = ScrollbarStyle.dark()
         ScrollbarStyle(
@@ -168,18 +177,17 @@ fun EventDetailScreen(
             Spacer(modifier = Modifier.height(8.dp))
             KeyValueListComponent(
                 modifier = Modifier.fillMaxWidth(),
-                content = event.headers
+                content = event.headers.toSortedMap()
             )
             Spacer(modifier = Modifier.height(16.dp))
             when {
                 event.body == null -> Unit
-
                 contentType?.match(ContentType.Application.Json) == true -> JsonBodyComponent(
                     viewModel = viewModel,
                     body = event.body
                 )
 
-                contentType?.match(ContentType.Image.Any) == true -> {
+                unsupportedContentTypes.any { type -> contentType?.match(type) == true } -> {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
                         text = "Body",
@@ -188,7 +196,7 @@ fun EventDetailScreen(
                     ContentComponent {
                         Text(
                             modifier = Modifier,
-                            text = "Images not supported",
+                            text = "Unsupported content type: $contentType",
                             style = JewelTheme.editorTextStyle,
                             color = JewelTheme.textAreaStyle.colors.contentDisabled
                         )
@@ -227,7 +235,6 @@ fun EventDetailScreen(
                         content = { Text("Copy cURL") },
                         onClick = {
                             clipboardManager.setText(AnnotatedString(event.toCurlRequest()))
-
                         }
                     )
                 }
@@ -235,41 +242,29 @@ fun EventDetailScreen(
                     content = { Text("Copy to clipboard") },
                     onClick = {
                         clipboardManager.setText(
-                            when (event) {
-                                is NetInspektorEvent.Request -> buildAnnotatedString {
+                            buildAnnotatedString {
+                                event.getOrMatchRequest(viewModel.session)?.let { match ->
                                     append("🔗 Endpoint:\n")
-                                    append(event.method)
+                                    append(match.method)
                                     append(" ")
-                                    append(event.url)
-                                    event.getOrMatchResponse(viewModel.session)?.let { match ->
-                                        append("\n\n⚙️ Status:\n")
-                                        append(match.statusCode.toString())
-                                    }
-                                    append("\n\n📋 Headers:\n")
-                                    append(event.prettyHeaders)
-                                    event.body?.data?.decodeToString()?.takeIf { it.isNotEmpty() }?.let { content ->
-                                        append("\n\n📥 Body:\n")
-                                        append(text = content)
-                                    }
+                                    append(match.url)
                                 }
-
-                                is NetInspektorEvent.Response -> buildAnnotatedString {
-                                    event.getOrMatchRequest(viewModel.session)?.let { match ->
-                                        append("🔗 Endpoint:\n")
-                                        append(match.method)
-                                        append(" ")
-                                        append(match.url)
-                                    }
+                                event.getOrMatchResponse(viewModel.session)?.let { match ->
                                     append("\n\n⚙️ Status:\n")
-                                    append(event.statusCode.toString())
+                                    append(match.statusCode.toString())
+                                }
+                                event.prettyHeaders.takeIf { it.isNotEmpty() }?.let { headers ->
                                     append("\n\n📋 Headers:\n")
-                                    append(event.prettyHeaders)
-                                    event.body?.data?.decodeToString()?.takeIf { it.isNotEmpty() }?.let { content ->
+                                    append(headers)
+                                }
+                                if (!unsupportedContentTypes.any { type -> contentType?.match(type) == true }) {
+                                    content?.let { content ->
                                         append("\n\n📥 Body:\n")
                                         append(text = content)
                                     }
                                 }
                             }
+
                         )
                     }
                 )
