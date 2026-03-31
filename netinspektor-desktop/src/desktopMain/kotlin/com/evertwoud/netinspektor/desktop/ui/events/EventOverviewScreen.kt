@@ -4,15 +4,11 @@ package com.evertwoud.netinspektor.desktop.ui.events
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.TooltipPlacement
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,12 +18,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import com.evertwoud.netinspektor.desktop.MainViewModel
+import com.evertwoud.netinspektor.desktop.ui.component.HorizontalDivider
 import com.evertwoud.netinspektor.desktop.ui.events.component.EventRow
 import com.evertwoud.netinspektor.desktop.ui.events.detail.EventDetailScreen
 import com.evertwoud.netinspektor.desktop.util.AppControls
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.jetbrains.jewel.foundation.lazy.visibleItemsRange
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.intui.standalone.styling.dark
 import org.jetbrains.jewel.intui.standalone.styling.default
@@ -40,7 +36,6 @@ import org.jetbrains.jewel.ui.component.styling.ScrollbarStyle
 import org.jetbrains.jewel.ui.component.styling.ScrollbarVisibility
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.theme.colorPalette
-import org.jetbrains.jewel.ui.theme.dividerStyle
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -216,10 +211,7 @@ fun EventOverviewScreen(
                             )
                         }
                     }
-                    HorizontalDivider(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = JewelTheme.globalColors.borders.disabled
-                    )
+                    HorizontalDivider()
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(8.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),

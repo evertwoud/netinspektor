@@ -13,7 +13,6 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -40,12 +39,14 @@ import org.jetbrains.jewel.window.TitleBar
 import org.jetbrains.jewel.window.newFullscreenControls
 import org.jetbrains.jewel.window.styling.TitleBarStyle
 
+
+val viewModelStoreOwner = object : ViewModelStoreOwner {
+    override val viewModelStore: ViewModelStore
+        get() = ViewModelStore()
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 fun main() = application {
-    val viewModelStoreOwner = object : ViewModelStoreOwner {
-        override val viewModelStore: ViewModelStore
-            get() = ViewModelStore()
-    }
     CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
         val viewModel = viewModel { MainViewModel() }
         val navController = rememberNavController()

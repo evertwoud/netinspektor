@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.onClick
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -13,8 +12,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.rememberWindowState
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.evertwoud.netinspektor.desktop.MainViewModel
+import com.evertwoud.netinspektor.desktop.ui.component.HorizontalDivider
 import org.jetbrains.jewel.foundation.lazy.SelectableLazyColumn
 import org.jetbrains.jewel.foundation.lazy.SelectionMode
 import org.jetbrains.jewel.foundation.theme.JewelTheme
@@ -143,7 +142,7 @@ fun PairingWindow(
                         }
                     }
                 }
-                HorizontalDivider(color = JewelTheme.globalColors.borders.disabled)
+                HorizontalDivider()
                 Row(
                     modifier = Modifier.fillMaxWidth().background(JewelTheme.globalColors.panelBackground)
                         .padding(12.dp)
